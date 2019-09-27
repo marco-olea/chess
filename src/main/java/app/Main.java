@@ -1,11 +1,9 @@
 package app;
 
-import java.util.List;
 import java.util.HashMap;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
-import chess.Square;
 import chess.Board;
 import chess.pieces.Bishop;
 import chess.pieces.Knight;

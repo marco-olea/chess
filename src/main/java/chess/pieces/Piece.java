@@ -3,6 +3,12 @@ package chess.pieces;
 import java.util.List;
 import chess.Board;
 
+/**
+ * Represents a piece in chess.
+ * @author Marco Olea
+ * @version 1.0
+ * @see chess.Board
+ */
 public abstract class Piece {
 
     /**
@@ -87,27 +93,51 @@ public abstract class Piece {
     /** Denotes a black piece. */
     public static final int BLACK = 1;
 
-    protected Board board;
-    protected Position position;
-    protected int color;
+    private Board board;
+    private Position position;
+    private int color;
 
+    /**
+     * Creates a piece of the specified color to be set on the specified board.
+     * @param board the board this piece is on
+     * @param color the color of this piece
+     */
     public Piece(Board board, int color) {
         this.board = board;
         this.color = color;
     }
 
+    /**
+     * Determines if this piece can move to the specified rank and file.
+     * @param rank the rank to check
+     * @param file the file to check
+     * @return <code>true</code> if this piece can legally move to the specified position
+     */
     public boolean isLegalMove(int rank, int file) {
         return getLegalMoves().contains(new Position(rank, file));
     }
 
+    /**
+     * Returns the position of this piece on its board.
+     * @return the position of this piece
+     */
     public Position getPosition() {
         return position;
     }
 
+    /**
+     * Sets the new position for this piece on its board.
+     * @param rank the new rank for this piece
+     * @param file the new file for this piece
+     */
     public void setPosition(int rank, int file) {
         position = new Position(rank, file);
     }
 
+    /**
+     * Returns the color of this piece.
+     * @return the color of this piece
+     */
     public int getColor() {
         return color;
     }
@@ -151,16 +181,18 @@ public abstract class Piece {
         return java.util.Objects.hash(getClass().getSimpleName(), color);
     }
 
+    /**
+     * Returns a list of all the positions on the board that this piece can legally move to.
+     * @return the legal moves for this piece
+     */
     protected abstract List<Position> getLegalMoves();
 
-    protected boolean moveCapturesOrSquareHasFriendlyPiece(int rank, 
-                                                           int file, 
-                                                           List<Position> legalMoves) {
-        var squareColor = board.getSquarePieceColor(rank, file);
-        if (squareColor != color) {
-            legalMoves.add(new Position(rank, file));
-        }
-        return squareColor != -1;
+    /**
+     * Returns a reference to the board that this piece is on.
+     * @return the board this piece is on
+     */
+    protected Board getBoard() {
+        return board;
     }
 
 }

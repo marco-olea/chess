@@ -3,8 +3,18 @@ package chess.pieces;
 import java.util.List;
 import chess.Board;
 
+/**
+ * Represents a pawn in chess.
+ * @author Marco Olea
+ * @version 1.0
+ */
 public class Pawn extends Piece {
-	
+    
+    /**
+     * Creates a pawn of the specified color to be set on the specified board.
+     * @param board the board this pawn is on
+     * @param color the color of this pawn
+     */
     public Pawn(Board board, int color) {
         super(board, color);
     }
@@ -12,8 +22,9 @@ public class Pawn extends Piece {
     @Override
     protected List<Position> getLegalMoves() {
         var positions = new java.util.LinkedList<Position>();
-        int rank = position.getRank(), file = position.getFile();
-        if (color == WHITE) {
+        var board = getBoard();
+        int rank = getPosition().getRank(), file = getPosition().getFile();
+        if (getColor() == WHITE) {
             if (board.isSquareEmpty(rank - 1, file)) {
                 positions.add(new Position(rank - 1, file));
             }
