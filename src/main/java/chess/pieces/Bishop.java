@@ -2,7 +2,6 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
-import chess.Position;
 
 public class Bishop extends Piece {
 
@@ -11,7 +10,7 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public List<Position> getLegalMoves() {
+    protected List<Position> getLegalMoves() {
         var positions = new java.util.LinkedList<Position>();
         int rank = position.getRank(), file = position.getFile(); 
         for (int i = rank - 1, j = file - 1; i >= 0 && j >= 0; i--, j--) {
@@ -35,23 +34,6 @@ public class Bishop extends Piece {
             }
         }
         return positions;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Bishop other = (Bishop) obj;
-        return color == other.color;
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(color);
     }
 
 }

@@ -2,7 +2,6 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
-import chess.Position;
 
 public class Knight extends Piece {
 
@@ -11,7 +10,7 @@ public class Knight extends Piece {
     }
 
     @Override
-    public List<Position> getLegalMoves() {
+    protected List<Position> getLegalMoves() {
         var positions = new java.util.LinkedList<Position>();
         int rank = position.getRank(), file = position.getFile(); 
         if (rank - 1 >= 0 && file - 2 >= 0
@@ -47,23 +46,6 @@ public class Knight extends Piece {
             positions.add(new Position(rank + 1, file - 2));
         }
         return positions;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Knight other = (Knight) obj;
-        return color == other.color;
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(color);
     }
 
 }

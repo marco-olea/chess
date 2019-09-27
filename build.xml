@@ -47,6 +47,7 @@
     <mkdir dir="${doc.dir}" />
     <javadoc sourcepath="${src.java.dir}"
              packagenames="*"
+             source="13"
              classpathref="build.libclasspath"
              defaultexcludes="yes"
              destdir="${doc.dir}"
@@ -55,6 +56,7 @@
              version="false"
              use="true"
              windowtitle="Chess">
+      <arg value="--enable-preview" />
       <link href="https://docs.oracle.com/en/java/javase/13/docs/api/" />
       <link href="http://processing.github.io/processing-javadocs/core/" />
       <doctitle><![CDATA[<h1>Chess App</h1>]]></doctitle>

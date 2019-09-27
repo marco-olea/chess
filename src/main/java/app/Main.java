@@ -5,7 +5,6 @@ import java.util.HashMap;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
-import chess.Position;
 import chess.Square;
 import chess.Board;
 import chess.pieces.Bishop;
@@ -144,8 +143,8 @@ public class Main extends PApplet {
         // Pieces
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (!board.getSquare(i, j).isEmpty()) {
-                    image(images.get(board.getSquare(i, j).getPiece()),
+                if (!board.isSquareEmpty(i, j)) {
+                    image(images.get(board.getPiece(i, j)),
                           j * SQUARE_SIZE + SQUARE_MARGIN, i * SQUARE_SIZE + SQUARE_MARGIN,
                           IMAGE_SIZE, IMAGE_SIZE);
                 }
@@ -159,28 +158,27 @@ public class Main extends PApplet {
             return;
         }
         if (choosingNextMove) {
-            if (board.movePiece(
-                            selectedRank, selectedFile, 
-                            mapYCoordinate(event.getY()), mapYCoordinate(event.getX()))) {
+            if (board.movePiece(selectedRank,
+                                selectedFile,
+                                mapMouseCoordinateToRankOrFile(event.getY()),
+                                mapMouseCoordinateToRankOrFile(event.getX()))) {
                 turn = turn == Piece.WHITE ? Piece.BLACK : Piece.WHITE;
             }
             choosingNextMove = false;
             selectedPiece = null;
         } else {
-            selectedRank = mapYCoordinate(event.getY());
-            selectedFile = mapYCoordinate(event.getX());
-            Square selectedSquare = 
-                board.getSquare(selectedRank, selectedFile);
-            if (!selectedSquare.isEmpty()
-                    && selectedSquare.getPiece().getColor() == turn) {
-                selectedPiece = selectedSquare.getPiece();
+            selectedRank = mapMouseCoordinateToRankOrFile(event.getY());
+            selectedFile = mapMouseCoordinateToRankOrFile(event.getX());
+            if (!board.isSquareEmpty(selectedRank, selectedFile)
+                    && board.getSquarePieceColor(selectedRank, selectedFile) == turn) {
+                selectedPiece = board.getPiece(selectedRank, selectedFile);
                 choosingNextMove = true;
             }
         }
         redraw();
     }
 
-    private int mapYCoordinate(int c) {
+    private int mapMouseCoordinateToRankOrFile(int c) {
         return c / (BOARD_SIZE / 8);
     }
 
