@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="processing-chess" default="run" basedir="." >
 
+  <property name="java.source"         value="13" />
   <property name="src.java.dir"        value="src/main/java" />
   <property name="src.resources.dir"   value="src/main/resources" />
   <property name="build.dir"           value="build" />
@@ -29,7 +30,7 @@
     <mkdir dir="${build.java.dir}" />
     <javac srcdir="${src.java.dir}"
            destdir="${build.java.dir}"
-           source="13"
+           source="${java.source}"
            classpathref="build.libclasspath"
            listfiles="yes" 
            debug="on"
@@ -47,7 +48,7 @@
     <mkdir dir="${doc.dir}" />
     <javadoc sourcepath="${src.java.dir}"
              packagenames="*"
-             source="13"
+             source="${java.source}"
              classpathref="build.libclasspath"
              defaultexcludes="yes"
              destdir="${doc.dir}"
@@ -57,9 +58,9 @@
              use="true"
              windowtitle="Chess">
       <arg value="--enable-preview" />
-      <link href="https://docs.oracle.com/en/java/javase/13/docs/api/" />
+      <link href="https://docs.oracle.com/en/java/javase/${java.source}/docs/api/" />
       <link href="http://processing.github.io/processing-javadocs/core/" />
-      <doctitle><![CDATA[<h1>Chess App</h1>]]></doctitle>
+      <doctitle><![CDATA[<h1>Chess Application</h1>]]></doctitle>
       <bottom><![CDATA[<i>Copyright &#169; 2019. All rights reserved.</i>]]></bottom>
     </javadoc>
   </target>

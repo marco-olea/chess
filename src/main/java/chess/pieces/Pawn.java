@@ -5,13 +5,15 @@ import chess.Board;
 
 /**
  * Represents a pawn in chess.
+ * 
  * @author Marco Olea
  * @version 1.0
  */
 public class Pawn extends Piece {
-    
+
     /**
      * Creates a pawn of the specified color to be set on the specified board.
+     * 
      * @param board the board this pawn is on
      * @param color the color of this pawn
      */
@@ -24,12 +26,13 @@ public class Pawn extends Piece {
         var positions = new java.util.LinkedList<Position>();
         var board = getBoard();
         int rank = getPosition().getRank(), file = getPosition().getFile();
+
         if (getColor() == WHITE) {
             if (board.isSquareEmpty(rank - 1, file)) {
                 positions.add(new Position(rank - 1, file));
             }
-            if (rank == 6
-                    && board.isSquareEmpty(rank - 1, file)
+            if (rank == 6 
+                    && board.isSquareEmpty(rank - 1, file) 
                     && board.isSquareEmpty(rank - 2, file)) {
                 positions.add(new Position(rank - 2, file));
             }
@@ -44,7 +47,7 @@ public class Pawn extends Piece {
                 positions.add(new Position(rank + 1, file));
             }
             if (rank == 1 
-                    && board.isSquareEmpty(rank + 1, file)
+                    && board.isSquareEmpty(rank + 1, file) 
                     && board.isSquareEmpty(rank + 2, file)) {
                 positions.add(new Position(rank + 2, file));
             }
@@ -55,6 +58,7 @@ public class Pawn extends Piece {
                 positions.add(new Position(rank + 1, file + 1));
             }
         }
+        
         return positions;
     }
 

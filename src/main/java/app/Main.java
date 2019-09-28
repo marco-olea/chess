@@ -13,22 +13,28 @@ import chess.pieces.Piece;
 import chess.pieces.King;
 import chess.pieces.Rook;
 
-// TODO: Documentation; draw special tiles after board
+/**
+ * Chess application using the Processing 3 framework.
+ * 
+ * @author Marco Olea
+ * @version 1.0
+ */
 public class Main extends PApplet {
 
     // Non-static because can't use color() or displayHeight in static context.
-    private final int BOARD_SIZE = 720;
-    private final int SQUARE_SIZE = BOARD_SIZE / 8;
-    private final int SQUARE_MARGIN = SQUARE_SIZE / 10;
-    private final int SQUARE_BORDER_COLOR = color(0, 0, 0); // ARGB
-    private final int SQUARE_BORDER_WIDTH = 1;
-    private final int SELECTED_SQUARE_BORDER_COLOR = color(0, 0, 255);
-    private final int SELECTED_SQUARE_BORDER_WIDTH = 3;
-    private final int POTENTIAL_SQUARE_BORDER_COLOR = color(255, 0, 0);
-    private final int POTENTIAL_SQUARE_BORDER_WIDTH = 3;
-    private final int WHITE_SQUARE_FILL = color(220, 220, 220);
-    private final int BLACK_SQUARE_FILL = color(0, 100);
-    private final int IMAGE_SIZE = BOARD_SIZE / 10;
+    private final String WINDOW_TITLE                   = "Chess";
+    private final int    BOARD_SIZE                     = 720;
+    private final int    SQUARE_SIZE                    = BOARD_SIZE / 8;
+    private final int    SQUARE_MARGIN                  = SQUARE_SIZE / 10;
+    private final int    SQUARE_BORDER_COLOR            = color(0, 0, 0); // ARGB
+    private final int    SQUARE_BORDER_WIDTH            = 1;
+    private final int    SELECTED_SQUARE_BORDER_COLOR   = color(0, 0, 255);
+    private final int    SELECTED_SQUARE_BORDER_WIDTH   = 3;
+    private final int    POTENTIAL_SQUARE_BORDER_COLOR  = color(255, 0, 0);
+    private final int    POTENTIAL_SQUARE_BORDER_WIDTH  = 3;
+    private final int    WHITE_SQUARE_FILL              = color(220, 220, 220);
+    private final int    BLACK_SQUARE_FILL              = color(0, 100);
+    private final int    IMAGE_SIZE                     = BOARD_SIZE / 10;
 
     private Board board;
     private HashMap<Piece, PImage> images;
@@ -38,18 +44,37 @@ public class Main extends PApplet {
     private int turn;
     private boolean choosingNextMove;
 
+    /**
+     * Starts this application.
+     * 
+     * @param args unused
+     */
     public static void main(String[] args) {
         PApplet.main(Main.class.getName());
     }
 
+    /**
+     * Required no-arg constructor.
+     */
+    public Main() {}
+
+    /**
+     * Sets the window dimensions and turns off looping.
+     */
     @Override
     public void settings() {
         size(BOARD_SIZE, BOARD_SIZE);
         noLoop();
     }
 
+    /**
+     * Load piece image files, create board, and assign pieces to their initial
+     * positions.
+     */
     @Override
     public void setup() {
+        surface.setTitle(WINDOW_TITLE);
+
         PImage wPawnImg = loadImage(getClass().getResource("/white-pawn-50.png").getPath());
         PImage wBishopImg = loadImage(getClass().getResource("/white-bishop-50.png").getPath());
         PImage wKnightImg = loadImage(getClass().getResource("/white-knight-50.png").getPath());
@@ -108,9 +133,14 @@ public class Main extends PApplet {
         }
     }
 
+    /**
+     * Draws the 8x8 chess board, using special predefined colors for the selected
+     * piece and all the positions it can legally move to, then draws the images for
+     * every piece on the board.
+     */
     @Override
-    public void draw() {
-        //Clear canvas
+    public void draw() { // TODO: Draw special tiles after board.
+        // Clear canvas
         background(255);
 
         // Board
@@ -132,17 +162,15 @@ public class Main extends PApplet {
         if (choosingNextMove) {
             stroke(SELECTED_SQUARE_BORDER_COLOR);
             strokeWeight(SELECTED_SQUARE_BORDER_WIDTH);
-            fill((selectedRank + selectedFile) % 2 == 0
-                ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
-            rect(selectedFile * SQUARE_SIZE, selectedRank * SQUARE_SIZE,
-                 SQUARE_SIZE, SQUARE_SIZE);
+            fill((selectedRank + selectedFile) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
+            rect(selectedFile * SQUARE_SIZE, selectedRank * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
         }
 
         // Pieces
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (!board.isSquareEmpty(i, j)) {
-                    image(images.get(board.getPiece(i, j)),
+                    image(images.get(board.getPiece(i, j)), 
                           j * SQUARE_SIZE + SQUARE_MARGIN, i * SQUARE_SIZE + SQUARE_MARGIN,
                           IMAGE_SIZE, IMAGE_SIZE);
                 }
@@ -150,13 +178,21 @@ public class Main extends PApplet {
         }
     }
 
+    /**
+     * Processes an attempt to select or move a piece on the board.
+     * 
+     * @param event mouse event
+     */
     @Override
     public void mouseClicked(MouseEvent event) {
+        // Only accept left clicks
         if (event.getButton() != LEFT) {
             return;
         }
+
+        // If a player attempted to move the selected piece
         if (choosingNextMove) {
-            if (board.movePiece(selectedRank,
+            if (board.movePiece(selectedRank, 
                                 selectedFile,
                                 mapMouseCoordinateToRankOrFile(event.getY()),
                                 mapMouseCoordinateToRankOrFile(event.getX()))) {
@@ -164,7 +200,7 @@ public class Main extends PApplet {
             }
             choosingNextMove = false;
             selectedPiece = null;
-        } else {
+        } else { // If a player attempted to select a piece
             selectedRank = mapMouseCoordinateToRankOrFile(event.getY());
             selectedFile = mapMouseCoordinateToRankOrFile(event.getX());
             if (!board.isSquareEmpty(selectedRank, selectedFile)
@@ -173,9 +209,16 @@ public class Main extends PApplet {
                 choosingNextMove = true;
             }
         }
+
         redraw();
     }
 
+    /**
+     * Maps an x or y coordinate to an integer in the range [0, 7] (a rank or file).
+     * 
+     * @param c coordinate to map
+     * @return 0, 1, 2, 3, 4, 5, 6, or 7
+     */
     private int mapMouseCoordinateToRankOrFile(int c) {
         return c / (BOARD_SIZE / 8);
     }

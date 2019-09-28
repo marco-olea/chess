@@ -5,6 +5,7 @@ import chess.Board;
 
 /**
  * Represents a piece in chess.
+ * 
  * @author Marco Olea
  * @version 1.0
  * @see chess.Board
@@ -13,6 +14,7 @@ public abstract class Piece {
 
     /**
      * A position (rank, file) on a chess board.
+     * 
      * @author Marco Olea
      * @version 1.0
      */
@@ -23,6 +25,7 @@ public abstract class Piece {
 
         /**
          * Creates a position that represents the specified rank and file.
+         * 
          * @param rank the rank
          * @param file the file
          */
@@ -33,6 +36,7 @@ public abstract class Piece {
 
         /**
          * Returns the rank.
+         * 
          * @return the rank associated with this position
          */
         public int getRank() {
@@ -41,6 +45,7 @@ public abstract class Piece {
 
         /**
          * Returns the file.
+         * 
          * @return the file associated with this position
          */
         public int getFile() {
@@ -48,9 +53,10 @@ public abstract class Piece {
         }
 
         /**
-         * Compares the specified object with this position for equality. Returns <code>true</code> if
-         * and only if the specified object is also a position and both positions refer to the same rank
-         * and file.
+         * Compares the specified object with this position for equality. Returns
+         * <code>true</code> if and only if the specified object is also a position and
+         * both positions refer to the same rank and file.
+         * 
          * @param obj the object to be compared for equality with this position
          * @return <code>true</code> if the specified object is equal to this position
          * @see Object#hashCode()
@@ -69,13 +75,16 @@ public abstract class Piece {
         }
 
         /**
-         * Returns the hash code value for this position, which is the following calculation:
+         * Returns the hash code value for this position, which is the following
+         * calculation:
          * <p>
          * &nbsp;&nbsp;&nbsp;&nbsp;<code>java.util.Objects.hash(rank, file)</code>
          * </p>
-         * This ensures that <code>pos1.equals(pos2)</code> implies that 
-         * <code>pos1.hashCode()==pos2.hashCode()</code> for any two positions, <code>pos1</code> and
-         * <code>pos2</code>, as required by the general contract of <code>Object.hashCode()</code>.
+         * This ensures that <code>pos1.equals(pos2)</code> implies that
+         * <code>pos1.hashCode()==pos2.hashCode()</code> for any two positions,
+         * <code>pos1</code> and <code>pos2</code>, as required by the general contract
+         * of <code>Object.hashCode()</code>.
+         * 
          * @return the hash code value for this position
          * @see Object#equals(Object)
          * @see #equals(Object)
@@ -99,6 +108,7 @@ public abstract class Piece {
 
     /**
      * Creates a piece of the specified color to be set on the specified board.
+     * 
      * @param board the board this piece is on
      * @param color the color of this piece
      */
@@ -109,24 +119,19 @@ public abstract class Piece {
 
     /**
      * Determines if this piece can move to the specified rank and file.
+     * 
      * @param rank the rank to check
      * @param file the file to check
-     * @return <code>true</code> if this piece can legally move to the specified position
+     * @return <code>true</code> if this piece can legally move to the specified
+     *         position
      */
     public boolean isLegalMove(int rank, int file) {
         return getLegalMoves().contains(new Position(rank, file));
     }
 
     /**
-     * Returns the position of this piece on its board.
-     * @return the position of this piece
-     */
-    public Position getPosition() {
-        return position;
-    }
-
-    /**
      * Sets the new position for this piece on its board.
+     * 
      * @param rank the new rank for this piece
      * @param file the new file for this piece
      */
@@ -136,6 +141,7 @@ public abstract class Piece {
 
     /**
      * Returns the color of this piece.
+     * 
      * @return the color of this piece
      */
     public int getColor() {
@@ -143,9 +149,11 @@ public abstract class Piece {
     }
 
     /**
-     * Compares the specified object with this piece for equality. Returns <code>true</code> if
-     * and only if the specified object is also a piece, both pieces are of the same subtype
-     * (i.e. both are pawns) and both pieces are of the same color.
+     * Compares the specified object with this piece for equality. Returns
+     * <code>true</code> if and only if the specified object is also a piece, both
+     * pieces are of the same subtype (i.e. both are pawns) and both pieces are of
+     * the same color.
+     * 
      * @param obj the object to be compared for equality with this piece
      * @return <code>true</code> if the specified object is equal to this piece
      * @see Object#hashCode()
@@ -164,14 +172,17 @@ public abstract class Piece {
     }
 
     /**
-     * Returns the hash code value for this piece, which is the following calculation:
+     * Returns the hash code value for this piece, which is the following
+     * calculation:
      * <p>
      * &nbsp;&nbsp;&nbsp;&nbsp;
      * <code>java.util.Objects.hash(getClass().getSimpleName(), color)</code>
      * </p>
-     * This ensures that <code>piece1.equals(piece2)</code> implies that 
-     * <code>piece1.hashCode()==piece2.hashCode()</code> for any two pieces, <code>piece1</code> and
-     * <code>piece2</code>, as required by the general contract of <code>Object.hashCode()</code>.
+     * This ensures that <code>piece1.equals(piece2)</code> implies that
+     * <code>piece1.hashCode()==piece2.hashCode()</code> for any two pieces,
+     * <code>piece1</code> and <code>piece2</code>, as required by the general
+     * contract of <code>Object.hashCode()</code>.
+     * 
      * @return the hash code value for this piece
      * @see Object#equals(Object)
      * @see #equals(Object)
@@ -182,17 +193,29 @@ public abstract class Piece {
     }
 
     /**
-     * Returns a list of all the positions on the board that this piece can legally move to.
+     * Returns a list of all the positions on the board that this piece can legally
+     * move to.
+     * 
      * @return the legal moves for this piece
      */
     protected abstract List<Position> getLegalMoves();
 
     /**
      * Returns a reference to the board that this piece is on.
+     * 
      * @return the board this piece is on
      */
     protected Board getBoard() {
         return board;
+    }
+
+    /**
+     * Returns the position of this piece on its board.
+     * 
+     * @return the position of this piece
+     */
+    protected Position getPosition() {
+        return position;
     }
 
 }
