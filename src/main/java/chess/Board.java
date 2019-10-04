@@ -112,7 +112,7 @@ public class Board {
     }
 
     /**
-     * Determines the square in the specified position contains a piece.
+     * Determines if the square in the specified position contains a piece.
      * 
      * @param rank the rank to check
      * @param file the file to check
