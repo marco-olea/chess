@@ -22,7 +22,7 @@ public class Knight extends Piece {
     }
 
     @Override
-    protected List<Position> getLegalMoves() {
+    public List<Position> getAllMoves() {
         var positions = new java.util.LinkedList<Position>();
         var board = getBoard();
         var color = getColor();

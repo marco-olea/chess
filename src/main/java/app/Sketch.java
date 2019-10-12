@@ -42,7 +42,6 @@ public class Sketch extends PApplet {
     private Piece selectedPiece;
     private int selectedRank;
     private int selectedFile;
-    private int turn;
     private boolean choosingNextMove;
 
     /**
@@ -51,7 +50,7 @@ public class Sketch extends PApplet {
      */
     @Override
     public void setup() {
-        BOARD_SIZE = displayHeight * 8 / 10;
+        BOARD_SIZE = displayHeight * 4 / 5;
         SQUARE_SIZE = BOARD_SIZE / 8;
         IMAGE_SIZE = BOARD_SIZE / 10;
         SQUARE_MARGIN = SQUARE_SIZE / 10;
@@ -61,7 +60,6 @@ public class Sketch extends PApplet {
         surface.setTitle(WINDOW_TITLE);
         noLoop();
 
-        turn = Piece.WHITE;
         board = new Board();
         images = new HashMap<>(12);
 
@@ -176,19 +174,17 @@ public class Sketch extends PApplet {
 
         // If a player attempted to move the selected piece
         if (choosingNextMove) {
-            if (board.movePiece(selectedRank, 
-                                selectedFile,
-                                mapMouseCoordinateToRankOrFile(event.getY()),
-                                mapMouseCoordinateToRankOrFile(event.getX()))) {
-                turn = turn == Piece.WHITE ? Piece.BLACK : Piece.WHITE;
-            }
+            board.movePiece(selectedRank,
+                            selectedFile,
+                            mapMouseCoordinateToRankOrFile(event.getY()),
+                            mapMouseCoordinateToRankOrFile(event.getX()));
             choosingNextMove = false;
             selectedPiece = null;
         } else { // If a player attempted to select a piece
             selectedRank = mapMouseCoordinateToRankOrFile(event.getY());
             selectedFile = mapMouseCoordinateToRankOrFile(event.getX());
             if (!board.isSquareEmpty(selectedRank, selectedFile)
-                    && turn == board.getSquarePieceColor(selectedRank, selectedFile)) {
+                    && board.getTurn() == board.getSquarePieceColor(selectedRank, selectedFile)) {
                 selectedPiece = board.getPiece(selectedRank, selectedFile);
                 choosingNextMove = true;
             }

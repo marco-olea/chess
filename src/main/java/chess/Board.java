@@ -1,6 +1,8 @@
 package chess;
 
 import chess.pieces.Piece;
+import chess.pieces.King;
+import java.util.ArrayList;
 
 /**
  * A standard 8x8 chess board.
@@ -51,6 +53,16 @@ public class Board {
     }
 
     private Square[][] squares;
+    private int turn;
+    private int initialLivePieceCount; // Used for adding all initial 32 live pieces.
+    private ArrayList<Piece> liveWhitePieces;
+    private ArrayList<Piece> liveBlackPieces;
+    private boolean canUndo;      // Used for undoing a move.
+    private Piece lastMoveCapturedPiece; // Used for undoing a move.
+    private int lastMovePrevRank; // Used for undoing a move.
+    private int lastMovePrevFile; // Used for undoing a move.
+    private int lastMoveNextRank; // Used for undoing a move.
+    private int lastMoveNextFile; // Used for undoing a move.
 
     /**
      * Creates a board with empty squares (no pieces).
@@ -62,6 +74,13 @@ public class Board {
                 squares[i][j] = new Square();
             }
         }
+        turn = Piece.WHITE;
+        liveWhitePieces = new ArrayList<>();
+        liveBlackPieces = new ArrayList<>();
+    }
+
+    public int getTurn() {
+        return turn;
     }
 
     /**
@@ -87,6 +106,10 @@ public class Board {
     public void setPiece(Piece piece, int rank, int file) {
         if (piece != null) {
             piece.setPosition(rank, file);
+            if (initialLivePieceCount < 32) {
+                (piece.getColor() == Piece.WHITE ? liveWhitePieces : liveBlackPieces).add(piece);
+                initialLivePieceCount++;
+            }
         }
         squares[rank][file].setPiece(piece);
     }
@@ -100,15 +123,38 @@ public class Board {
      * @param nextFile the file of the square to move to the piece to
      * @return <code>true</code> if a piece changed its position on the board
      */
-    public boolean movePiece(int prevRank, int prevFile, int nextRank, int nextFile) {
+    public void movePiece(int prevRank, int prevFile, int nextRank, int nextFile) {
         Square square = squares[prevRank][prevFile];
         if (!square.isEmpty() && (prevRank != nextRank || prevFile != nextFile)
                 && square.getPiece().isLegalMove(nextRank, nextFile)) {
+            Piece capturedPiece = getPiece(nextRank, nextFile);
             setPiece(square.getPiece(), nextRank, nextFile);
             setPiece(null, prevRank, prevFile);
-            return true;
+            var opponentLivePieces = turn == Piece.WHITE ? liveBlackPieces : liveWhitePieces;
+            if (capturedPiece != null) {
+                System.out.println(opponentLivePieces.indexOf(capturedPiece));
+                opponentLivePieces.remove(opponentLivePieces.indexOf(capturedPiece));
+            }
+            turn = turn == Piece.WHITE ? Piece.BLACK : Piece.WHITE;
+            lastMovePrevRank = prevRank;
+            lastMovePrevFile = prevFile;
+            lastMoveNextRank = nextRank;
+            lastMoveNextFile = nextFile;
+            lastMoveCapturedPiece = capturedPiece;
+            canUndo = true;
         }
-        return false;
+    }
+
+    public void undoLastMove() {
+        if (canUndo) {
+            turn = turn == Piece.WHITE ? Piece.BLACK : Piece.BLACK;
+            if (lastMoveCapturedPiece != null) {
+                (turn == Piece.WHITE ? liveBlackPieces : liveWhitePieces).add(lastMoveCapturedPiece);
+            }
+            movePiece(lastMoveNextRank, lastMoveNextFile, lastMovePrevRank, lastMovePrevFile);
+            setPiece(lastMoveCapturedPiece, lastMoveNextRank, lastMoveNextFile);
+            canUndo = false;
+        }
     }
 
     /**
@@ -135,6 +181,46 @@ public class Board {
      */
     public int getSquarePieceColor(int rank, int file) {
         return isSquareEmpty(rank, file) ? -1 : squares[rank][file].getPiece().getColor();
+    }
+
+    public boolean isInCheck() {
+        return isInCheck(turn);
+    }
+
+    public boolean isInCheck(int color) {
+        var colorLivePieces = color == Piece.WHITE ? liveWhitePieces : liveBlackPieces;
+        var opponentLivePieces = color == Piece.WHITE ? liveBlackPieces : liveWhitePieces;
+        Piece king = colorLivePieces.get(colorLivePieces.indexOf(new King(this, color)));
+        for (var piece: opponentLivePieces) {
+            for (var position: piece.getAllMoves()) {
+                if (position.getRank() == king.getPosition().getRank()
+                        && position.getFile() == king.getPosition().getFile()) {
+                    System.out.printf("%s, %s -> %s, %s",
+                            position.getRank(), position.getFile(), king.getPosition().getRank(),
+                            king.getPosition().getFile());
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean causesCheck(int prevRank, int prevFile, int nextRank, int nextFile) {
+        Piece prevPiece = getPiece(prevRank, prevFile), nextPiece = getPiece(nextRank, nextFile);
+        setPiece(prevPiece, nextRank, nextFile);
+        setPiece(null, prevRank, prevFile);
+        boolean wasRemoved = 
+            (turn == Piece.WHITE ? liveBlackPieces : liveWhitePieces).remove(nextPiece);
+        boolean causesCheck = false;
+        if (isInCheck(prevPiece.getColor())) {
+            causesCheck = true;
+            if (wasRemoved) {
+                (turn == Piece.WHITE ? liveBlackPieces : liveWhitePieces).add(nextPiece);
+            }
+        }
+        setPiece(prevPiece, prevRank, prevFile);
+        setPiece(nextPiece, nextRank, nextFile);
+        return causesCheck;
     }
 
 }

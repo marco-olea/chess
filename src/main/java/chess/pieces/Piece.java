@@ -18,7 +18,7 @@ public abstract class Piece {
      * @author Marco Olea
      * @version 1.0
      */
-    protected class Position {
+    public class Position {
 
         private int rank;
         private int file;
@@ -117,6 +117,23 @@ public abstract class Piece {
         this.color = color;
     }
 
+    public abstract List<Position> getAllMoves();
+
+    /**
+     * Returns a list of all the positions on the board that this piece can legally
+     * move to.
+     * 
+     * @return the legal moves for this piece
+     */
+    public List<Position> getLegalMoves() {
+        var moves = getAllMoves();
+        moves.removeIf(move -> {
+            return board.causesCheck(position.rank, position.file, 
+                                     move.getRank(), move.getFile());
+        });
+        return moves;
+    }
+
     /**
      * Determines if this piece can move to the specified rank and file.
      * 
@@ -127,6 +144,15 @@ public abstract class Piece {
      */
     public boolean isLegalMove(int rank, int file) {
         return getLegalMoves().contains(new Position(rank, file));
+    }
+
+    /**
+     * Returns the position of this piece on its board.
+     * 
+     * @return the position of this piece
+     */
+    public Position getPosition() {
+        return position;
     }
 
     /**
@@ -193,29 +219,12 @@ public abstract class Piece {
     }
 
     /**
-     * Returns a list of all the positions on the board that this piece can legally
-     * move to.
-     * 
-     * @return the legal moves for this piece
-     */
-    protected abstract List<Position> getLegalMoves();
-
-    /**
      * Returns a reference to the board that this piece is on.
      * 
      * @return the board this piece is on
      */
     protected Board getBoard() {
         return board;
-    }
-
-    /**
-     * Returns the position of this piece on its board.
-     * 
-     * @return the position of this piece
-     */
-    protected Position getPosition() {
-        return position;
     }
 
 }

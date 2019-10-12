@@ -22,7 +22,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    protected List<Position> getLegalMoves() {
+    public List<Position> getAllMoves() {
         var positions = new java.util.LinkedList<Position>();
         var board = getBoard();
         int rank = getPosition().getRank(), file = getPosition().getFile();
