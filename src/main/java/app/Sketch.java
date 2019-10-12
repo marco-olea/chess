@@ -110,8 +110,8 @@ public class Sketch extends PApplet {
                     piece = new Pawn(board, color);
                     image = color == Piece.WHITE ? wPawnImg : bPawnImg;
                 }
-                images.put(piece, image);
                 board.setPiece(piece, i, j);
+                images.put(piece, image);
             }
         }
     }

@@ -117,16 +117,19 @@ public abstract class Piece {
         this.color = color;
     }
 
-    public abstract List<Position> getAllMoves();
+    public abstract List<Position> getPaths();
+
+    public boolean isInPath(Piece piece) {
+        return piece.getPaths().contains(position);
+    }
 
     /**
-     * Returns a list of all the positions on the board that this piece can legally
-     * move to.
+     * Returns a list of all the positions on the board that this piece can legally move to.
      * 
      * @return the legal moves for this piece
      */
     public List<Position> getLegalMoves() {
-        var moves = getAllMoves();
+        var moves = getPaths();
         moves.removeIf(move -> {
             return board.causesCheck(position.rank, position.file, 
                                      move.getRank(), move.getFile());
@@ -194,7 +197,7 @@ public abstract class Piece {
             return false;
         }
         Piece other = (Piece) obj;
-        return color == other.color;
+        return color == other.color && position.equals(other.getPosition());
     }
 
     /**

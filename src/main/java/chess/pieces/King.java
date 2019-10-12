@@ -22,7 +22,7 @@ public class King extends Piece {
     }
 
     @Override
-    public List<Position> getAllMoves() {
+    public List<Position> getPaths() {
         var positions = new java.util.LinkedList<Position>();
         var board = getBoard();
         var color = getColor();

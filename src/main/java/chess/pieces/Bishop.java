@@ -22,7 +22,7 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public List<Position> getAllMoves() {
+    public List<Position> getPaths() {
         var positions = new java.util.LinkedList<Position>();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 

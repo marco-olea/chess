@@ -22,44 +22,73 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Position> getAllMoves() {
+    public List<Position> getPaths() {
         var positions = new java.util.LinkedList<Position>();
         var board = getBoard();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 
         if (getColor() == WHITE) {
-            if (board.isSquareEmpty(rank - 1, file)) {
-                positions.add(new Position(rank - 1, file));
-            }
-            if (rank == 6 
-                    && board.isSquareEmpty(rank - 1, file) 
-                    && board.isSquareEmpty(rank - 2, file)) {
-                positions.add(new Position(rank - 2, file));
-            }
-            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1) == BLACK) {
+            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1) != WHITE) {
                 positions.add(new Position(rank - 1, file - 1));
             }
-            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1) == BLACK) {
+            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1) != WHITE) {
                 positions.add(new Position(rank - 1, file + 1));
             }
         } else {
-            if (board.isSquareEmpty(rank + 1, file)) {
-                positions.add(new Position(rank + 1, file));
-            }
-            if (rank == 1 
-                    && board.isSquareEmpty(rank + 1, file) 
-                    && board.isSquareEmpty(rank + 2, file)) {
-                positions.add(new Position(rank + 2, file));
-            }
-            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1) == WHITE) {
+            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1) != BLACK) {
                 positions.add(new Position(rank + 1, file - 1));
             }
-            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1) == WHITE) {
+            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1) != BLACK) {
                 positions.add(new Position(rank + 1, file + 1));
             }
         }
         
         return positions;
+    }
+
+    @Override
+    public List<Position> getLegalMoves() {
+        var moves = new java.util.LinkedList<Position>();
+        var board = getBoard();
+        int rank = getPosition().getRank(), file = getPosition().getFile();
+
+        if (getColor() == WHITE) {
+            if (board.isSquareEmpty(rank - 1, file)) {
+                moves.add(new Position(rank - 1, file));
+            }
+            if (rank == 6 
+                    && board.isSquareEmpty(rank - 1, file) 
+                    && board.isSquareEmpty(rank - 2, file)) {
+                moves.add(new Position(rank - 2, file));
+            }
+            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1) == BLACK) {
+                moves.add(new Position(rank - 1, file - 1));
+            }
+            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1) == BLACK) {
+                moves.add(new Position(rank - 1, file + 1));
+            }
+        } else {
+            if (board.isSquareEmpty(rank + 1, file)) {
+                moves.add(new Position(rank + 1, file));
+            }
+            if (rank == 1 
+                    && board.isSquareEmpty(rank + 1, file) 
+                    && board.isSquareEmpty(rank + 2, file)) {
+                moves.add(new Position(rank + 2, file));
+            }
+            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1) == WHITE) {
+                moves.add(new Position(rank + 1, file - 1));
+            }
+            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1) == WHITE) {
+                moves.add(new Position(rank + 1, file + 1));
+            }
+        }
+
+        moves.removeIf(move -> {
+            return board.causesCheck(rank, file, move.getRank(), move.getFile());
+        });
+
+        return moves;
     }
 
 }
