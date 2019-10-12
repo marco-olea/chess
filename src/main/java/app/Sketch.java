@@ -6,6 +6,7 @@ import processing.core.PImage;
 import processing.event.MouseEvent;
 import chess.Board;
 import chess.Color;
+import chess.Position;
 import chess.pieces.Piece;
 
 /**
@@ -35,8 +36,7 @@ public class Sketch extends PApplet {
     private Board board;
     private HashMap<Piece, PImage> images;
     private Piece selectedPiece;
-    private int selectedRank;
-    private int selectedFile;
+    private Position selectedPosition;
     private boolean choosingNextMove;
 
     /**
@@ -76,7 +76,7 @@ public class Sketch extends PApplet {
                 if (i >= 2 && i <= 5) {
                     continue;
                 }
-                Piece piece = board.getPiece(i, j);
+                Piece piece = board.getPiece(pos(i, j));
                 Color color = piece.getColor();
                 PImage image = switch (j) {
                     case 0, 7 -> color.equals(Color.WHITE) ? wRookImg : bRookImg;
@@ -105,7 +105,7 @@ public class Sketch extends PApplet {
         // Board
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (selectedPiece != null && selectedPiece.isLegalMove(i, j)) {
+                if (selectedPiece != null && selectedPiece.isLegalMove(pos(i, j))) {
                     stroke(POTENTIAL_SQUARE_BORDER_COLOR);
                     strokeWeight(POTENTIAL_SQUARE_BORDER_WIDTH);
                 } else {
@@ -119,17 +119,18 @@ public class Sketch extends PApplet {
 
         // Selection
         if (choosingNextMove) {
+            int rank = selectedPosition.getRank(), file = selectedPosition.getFile();
             stroke(SELECTED_SQUARE_BORDER_COLOR);
             strokeWeight(SELECTED_SQUARE_BORDER_WIDTH);
-            fill((selectedRank + selectedFile) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
-            rect(selectedFile * SQUARE_SIZE, selectedRank * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+            fill((rank + file) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
+            rect(file * SQUARE_SIZE, rank * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
         }
 
         // Pieces
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (!board.isSquareEmpty(i, j)) {
-                    image(images.get(board.getPiece(i, j)), 
+                if (!board.isSquareEmpty(pos(i, j))) {
+                    image(images.get(board.getPiece(pos(i, j))), 
                           j * SQUARE_SIZE + SQUARE_MARGIN, i * SQUARE_SIZE + SQUARE_MARGIN,
                           IMAGE_SIZE, IMAGE_SIZE);
                 }
@@ -151,18 +152,16 @@ public class Sketch extends PApplet {
 
         // If a player attempted to move the selected piece
         if (choosingNextMove) {
-            board.movePiece(selectedRank,
-                            selectedFile,
-                            mapMouseCoordinateToRankOrFile(event.getY()),
-                            mapMouseCoordinateToRankOrFile(event.getX()));
+            board.movePiece(selectedPiece, 
+                            pos(mapMouseCoordinateToRankOrFile(event.getY()),
+                                mapMouseCoordinateToRankOrFile(event.getX())));
             choosingNextMove = false;
             selectedPiece = null;
         } else { // If a player attempted to select a piece
-            selectedRank = mapMouseCoordinateToRankOrFile(event.getY());
-            selectedFile = mapMouseCoordinateToRankOrFile(event.getX());
-            if (!board.isSquareEmpty(selectedRank, selectedFile)
-                    && board.getTurn() == board.getSquarePieceColor(selectedRank, selectedFile)) {
-                selectedPiece = board.getPiece(selectedRank, selectedFile);
+            selectedPosition = pos(mapMouseCoordinateToRankOrFile(event.getY()),
+                                   mapMouseCoordinateToRankOrFile(event.getX()));
+            if (board.getTurn() == board.getSquarePieceColor(selectedPosition)) {
+                selectedPiece = board.getPiece(selectedPosition);
                 choosingNextMove = true;
             }
         }
@@ -178,6 +177,17 @@ public class Sketch extends PApplet {
      */
     private int mapMouseCoordinateToRankOrFile(int c) {
         return c / (BOARD_SIZE / 8);
+    }
+
+    /**
+     * Convenience method for creating instances of {@link chess.Position}.
+     * 
+     * @param rank the new position's rank
+     * @param file the new position's file
+     * @return a new position
+     */
+    private Position pos(int rank, int file) {
+        return new Position(rank, file);
     }
 
 }

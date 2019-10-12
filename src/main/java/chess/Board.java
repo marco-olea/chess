@@ -12,6 +12,9 @@ import chess.pieces.Rook;
 /**
  * A standard 8x8 chess board.
  * 
+ * The term "current player" will be used throughout this class's documentation to refer to the
+ * color of the pieces whose turn it is to act next.
+ * 
  * @author Marco Olea
  * @version 1.0
  * @see chess.pieces.Piece
@@ -65,7 +68,7 @@ public class Board {
     private King blackKing;
 
     /**
-     * Creates a board with empty squares (no pieces).
+     * Creates a board populated with the initial sixteen white and sixteen black pieces.
      */
     public Board() {
         squares = new Square[8][8];
@@ -94,16 +97,16 @@ public class Board {
                         yield king;
                     }
                 };
-                setPiece(piece, i, j);
+                setPiece(piece, new Position(i, j));
                 (color == Color.WHITE ? liveWhitePieces : liveBlackPieces).add(piece);
             }
         }
     }
 
     /**
-     * Returns the color of the player whose turn it is.
+     * Returns the color of the current player.
      * 
-     * @return the color of the player whose turn it is
+     * @return the color of the current player
      */
     public Color getTurn() {
         return turn;
@@ -112,84 +115,88 @@ public class Board {
     /**
      * Gets the piece on the board in the specified position.
      * 
-     * @param rank the rank of the desired piece
-     * @param file the file of the desired piece
+     * @param position the position of the required piece
      * @return a reference to the piece or <code>null</code> if the square at the
      *         specified position is empty
      */
-    public Piece getPiece(int rank, int file) {
-        return squares[rank][file].getPiece();
+    public Piece getPiece(Position position) {
+        return squares[position.getRank()][position.getFile()].getPiece();
     }
 
     /**
      * Sets a piece on the board in the specified position.
      * 
-     * @param piece the piece to set in the specified position; can be
-     *              <code>null</code>
-     * @param rank  the rank to set the piece in
-     * @param file  the file to set the piece in
+     * @param piece the piece to set in the specified position; can be <code>null</code>
+     * @param position  the position of the square to set the piece in
      */
-    public void setPiece(Piece piece, int rank, int file) {
+    public void setPiece(Piece piece, Position position) {
         if (piece != null) {
-            piece.setPosition(rank, file);
+            piece.setPosition(position);
         }
-        squares[rank][file].setPiece(piece);
+        squares[position.getRank()][position.getFile()].setPiece(piece);
     }
 
     /**
      * Moves a piece on the board from one position to another.
+     * Does nothing if: <br> 
+     * <ul>
+     *   <li><code>piece</code> is <code>null</code>,</li>
+     *   <li><code>this.getTurn().equals(piece.getColor())</code> is <code>false</code>,</li>
+     *   <li>the current player is attempting to move a piece to the same position it's already in,
+     *   <li>the move the current player is attempting to make is illegal.
+     * </ul>
      * 
-     * @param prevRank the rank of the piece to be moved
-     * @param prevFile the file of the piece to be moved
-     * @param nextRank the rank of the square to move to the piece to
-     * @param nextFile the file of the square to move to the piece to
+     * @param piece the piece to be moved; can be <code>null</code>
+     * @param move  the position of the square to move to the piece to
      * @return <code>true</code> if a piece changed its position on the board
      */
-    public void movePiece(int prevRank, int prevFile, int nextRank, int nextFile) {
-        Square square = squares[prevRank][prevFile];
-        if (!square.isEmpty() && (prevRank != nextRank || prevFile != nextFile)
-                && square.getPiece().isLegalMove(nextRank, nextFile)) {
-            Piece capturedPiece = getPiece(nextRank, nextFile);
-            setPiece(square.getPiece(), nextRank, nextFile);
-            setPiece(null, prevRank, prevFile);
-            var opponentLivePieces = turn == Color.WHITE ? liveBlackPieces : liveWhitePieces;
-            if (capturedPiece != null) {
-                opponentLivePieces.remove(capturedPiece);
-            }
-            turn = turn == Color.WHITE ? Color.BLACK : Color.WHITE;
+    public boolean movePiece(Piece piece, Position move) {
+        if (piece == null 
+                || !turn.equals(piece.getColor())
+                || piece.getPosition().equals(move)
+                || !piece.isLegalMove(move)) {
+            return false;
         }
+        Piece capturedPiece = getPiece(move);
+        setPiece(null, piece.getPosition());
+        setPiece(piece, move);
+        (turn.equals(Color.WHITE) ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);
+        turn = turn.equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
+        return true;
     }
 
     /**
-     * Determines if the square in the specified position contains a piece.
+     * Determines if moving a player's piece to some position on the board will put that player in
+     * check.
      * 
-     * @param rank the rank to check
-     * @param file the file to check
-     * @return <code>true</code> if the square is empty
+     * @param piece the piece to be moved; can be <code>null</code>
+     * @param move  the position of the square to move to the piece to
+     * @return <code>true</code> if the specified move puts the player in check
      */
-    public boolean isSquareEmpty(int rank, int file) {
-        return squares[rank][file].isEmpty();
+    public boolean moveCausesCheck(Piece piece, Position move) {
+        Piece capturedPiece = getPiece(move);
+        Position prevPosition = piece.getPosition();
+        setPiece(piece, move);
+        setPiece(null, prevPosition);
+        var opponentLivePieces = piece.getColor().equals(Color.WHITE) ?
+                liveBlackPieces : liveWhitePieces;
+        boolean wasRemoved = opponentLivePieces.remove(capturedPiece);
+        boolean causesCheck = false;
+        if (isInCheck()) {
+            causesCheck = true;
+        }
+        if (wasRemoved) {
+            opponentLivePieces.add(capturedPiece);
+        }
+        setPiece(piece, prevPosition);
+        setPiece(capturedPiece, move);
+        return causesCheck;
     }
 
     /**
-     * Gets the color of the piece on some square. Returns <code>-1</code> if the
-     * specified square is empty.
+     * Determines if the current player is in check.
      * 
-     * @param rank the rank of the square
-     * @param file the file of the square
-     * @return the piece's color or null if the square in the specified position is
-     *         empty
-     * @see chess.Color#WHITE
-     * @see chess.Color#BLACK
-     */
-    public Color getSquarePieceColor(int rank, int file) {
-        return isSquareEmpty(rank, file) ? Color.NONE : squares[rank][file].getPiece().getColor();
-    }
-
-    /**
-     * Determines if the player whose turn it is is in check.
-     * 
-     * @return <code>true</code> if it's in check
+     * @return <code>true</code> if the current player is in check
      */
     public boolean isInCheck() {
         List<Piece> opponentLivePieces;
@@ -209,26 +216,25 @@ public class Board {
         return false;
     }
 
-    public boolean causesCheck(int prevRank, int prevFile, int nextRank, int nextFile) {
-        Piece prevPiece = getPiece(prevRank, prevFile), nextPiece = getPiece(nextRank, nextFile);
-        setPiece(prevPiece, nextRank, nextFile);
-        setPiece(null, prevRank, prevFile);
-        var opponentLivePieces = prevPiece.getColor() == Color.WHITE ?
-                liveBlackPieces : liveWhitePieces;
-        int index = opponentLivePieces.indexOf(nextPiece);
-        if (index != -1) {
-            opponentLivePieces.remove(nextPiece);
-        }
-        boolean causesCheck = false;
-        if (isInCheck()) {
-            causesCheck = true;
-        }
-        if (index != -1) {
-            opponentLivePieces.add(nextPiece);
-        }
-        setPiece(prevPiece, prevRank, prevFile);
-        setPiece(nextPiece, nextRank, nextFile);
-        return causesCheck;
+    /**
+     * Determines if the square in the specified position contains a piece.
+     * 
+     * @param position the position to check
+     * @return <code>true</code> if the square is empty
+     */
+    public boolean isSquareEmpty(Position position) {
+        return squares[position.getRank()][position.getFile()].isEmpty();
+    }
+
+    /**
+     * Gets the color of the piece on some square.
+     * 
+     * @param position the position of the square
+     * @return the piece's color or {@link chess.Color#NONE} if the square in the specified position
+     *         is empty
+     */
+    public Color getSquarePieceColor(Position position) {
+        return isSquareEmpty(position) ? Color.NONE : getPiece(position).getColor();
     }
 
 }

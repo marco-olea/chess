@@ -63,8 +63,7 @@ public class Position {
     }
 
     /**
-     * Returns the hash code value for this position, which is the following
-     * calculation:
+     * Returns the hash code value for this position. The value is calculated as follows:
      * <p>
      * &nbsp;&nbsp;&nbsp;&nbsp;<code>java.util.Objects.hash(rank, file)</code>
      * </p>

@@ -86,9 +86,7 @@ public class Pawn extends Piece {
             }
         }
 
-        moves.removeIf(move -> {
-            return board.causesCheck(rank, file, move.getRank(), move.getFile());
-        });
+        moves.removeIf(move -> board.moveCausesCheck(this, move));
 
         return moves;
     }

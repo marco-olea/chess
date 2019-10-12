@@ -15,8 +15,8 @@ import chess.Color;
 public abstract class Piece {
 
     private Board board;
-    private Position position;
     private Color color;
+    private Position position;
 
     /**
      * Creates a piece of the specified color to be set on the specified board.
@@ -24,12 +24,14 @@ public abstract class Piece {
      * @param board the board this piece is on
      * @param color the color of this piece
      */
-    public Piece(Board board, Color color) {
+    public Piece(Board board, Color color){//}, Position position) {
         this.board = board;
         this.color = color;
+        // this.position = position;
     }
 
     public abstract List<Position> getPaths();
+
 
     public boolean isInPath(Piece piece) {
         return piece.getPaths().contains(position);
@@ -42,23 +44,18 @@ public abstract class Piece {
      */
     public List<Position> getLegalMoves() {
         var moves = getPaths();
-        moves.removeIf(move -> {
-            return board.causesCheck(position.getRank(), position.getFile(), 
-                                     move.getRank(), move.getFile());
-        });
+        moves.removeIf(move -> board.moveCausesCheck(this, move));
         return moves;
     }
 
     /**
-     * Determines if this piece can move to the specified rank and file.
+     * Determines if the specified move is legal for this piece.
      * 
-     * @param rank the rank to check
-     * @param file the file to check
-     * @return <code>true</code> if this piece can legally move to the specified
-     *         position
+     * @param move the move to check
+     * @return <code>true</code> if this piece can legally move to the specified position
      */
-    public boolean isLegalMove(int rank, int file) {
-        return getLegalMoves().contains(new Position(rank, file));
+    public boolean isLegalMove(Position move) {
+        return getLegalMoves().contains(move);
     }
 
     /**
@@ -73,11 +70,10 @@ public abstract class Piece {
     /**
      * Sets the new position for this piece on its board.
      * 
-     * @param rank the new rank for this piece
-     * @param file the new file for this piece
+     * @param position the new position for this piece
      */
-    public void setPosition(int rank, int file) {
-        position = new Position(rank, file);
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     /**
@@ -113,8 +109,7 @@ public abstract class Piece {
     }
 
     /**
-     * Returns the hash code value for this piece, which is the following
-     * calculation:
+     * Returns the hash code value for this piece. The value is calculated as follows:
      * <p>
      * &nbsp;&nbsp;&nbsp;&nbsp;
      * <code>java.util.Objects.hash(getClass().getSimpleName(), color)</code>
