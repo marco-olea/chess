@@ -2,6 +2,8 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
+import chess.Position;
+import chess.Color;
 
 /**
  * Represents a king in chess.
@@ -17,7 +19,7 @@ public class King extends Piece {
      * @param board the board this king is on
      * @param color the color of this king
      */
-    public King(Board board, int color) {
+    public King(Board board, Color color) {
         super(board, color);
     }
 

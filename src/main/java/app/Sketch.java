@@ -5,13 +5,8 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
 import chess.Board;
-import chess.pieces.Bishop;
-import chess.pieces.Knight;
-import chess.pieces.Queen;
-import chess.pieces.Pawn;
+import chess.Color;
 import chess.pieces.Piece;
-import chess.pieces.King;
-import chess.pieces.Rook;
 
 /**
  * Processing sketch used for playing chess.
@@ -81,36 +76,18 @@ public class Sketch extends PApplet {
                 if (i >= 2 && i <= 5) {
                     continue;
                 }
-                Piece piece;
-                PImage image;
-                int color = (i == 6 || i == 7) ? Piece.WHITE : Piece.BLACK;
-                switch (j) {
-                case 0, 7 -> {
-                    piece = new Rook(board, color);
-                    image = color == Piece.WHITE ? wRookImg : bRookImg;
-                }
-                case 1, 6 -> {
-                    piece = new Knight(board, color);
-                    image = color == Piece.WHITE ? wKnightImg : bKnightImg;
-                }
-                case 2, 5 -> {
-                    piece = new Bishop(board, color);
-                    image = color == Piece.WHITE ? wBishopImg : bBishopImg;
-                }
-                case 3 -> {
-                    piece = new Queen(board, color);
-                    image = color == Piece.WHITE ? wQueenImg : bQueenImg;
-                }
-                default -> {
-                    piece = new King(board, color);
-                    image = color == Piece.WHITE ? wKingImg : bKingImg;
-                }
-                }
+                Piece piece = board.getPiece(i, j);
+                Color color = piece.getColor();
+                PImage image = switch (j) {
+                    case 0, 7 -> color.equals(Color.WHITE) ? wRookImg : bRookImg;
+                    case 1, 6 -> color.equals(Color.WHITE) ? wKnightImg : bKnightImg;
+                    case 2, 5 -> color.equals(Color.WHITE) ? wBishopImg : bBishopImg;
+                    case 3 -> color.equals(Color.WHITE) ? wQueenImg : bQueenImg;
+                    default -> color.equals(Color.WHITE) ? wKingImg : bKingImg;
+                };
                 if (i == 1 || i == 6) {
-                    piece = new Pawn(board, color);
-                    image = color == Piece.WHITE ? wPawnImg : bPawnImg;
+                    image = color.equals(Color.WHITE) ? wPawnImg : bPawnImg;
                 }
-                board.setPiece(piece, i, j);
                 images.put(piece, image);
             }
         }

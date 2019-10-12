@@ -2,6 +2,8 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
+import chess.Position;
+import chess.Color;
 
 /**
  * Represents a pawn in chess.
@@ -17,7 +19,7 @@ public class Pawn extends Piece {
      * @param board the board this pawn is on
      * @param color the color of this pawn
      */
-    public Pawn(Board board, int color) {
+    public Pawn(Board board, Color color) {
         super(board, color);
     }
 
@@ -27,18 +29,18 @@ public class Pawn extends Piece {
         var board = getBoard();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 
-        if (getColor() == WHITE) {
-            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1) != WHITE) {
+        if (getColor().equals(Color.WHITE)) {
+            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1).equals(Color.WHITE)) {
                 positions.add(new Position(rank - 1, file - 1));
             }
-            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1) != WHITE) {
+            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1).equals(Color.WHITE)) {
                 positions.add(new Position(rank - 1, file + 1));
             }
         } else {
-            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1) != BLACK) {
+            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1).equals(Color.BLACK)) {
                 positions.add(new Position(rank + 1, file - 1));
             }
-            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1) != BLACK) {
+            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1).equals(Color.BLACK)) {
                 positions.add(new Position(rank + 1, file + 1));
             }
         }
@@ -52,7 +54,7 @@ public class Pawn extends Piece {
         var board = getBoard();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 
-        if (getColor() == WHITE) {
+        if (getColor().equals(Color.WHITE)) {
             if (board.isSquareEmpty(rank - 1, file)) {
                 moves.add(new Position(rank - 1, file));
             }
@@ -61,10 +63,10 @@ public class Pawn extends Piece {
                     && board.isSquareEmpty(rank - 2, file)) {
                 moves.add(new Position(rank - 2, file));
             }
-            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1) == BLACK) {
+            if (file > 0 && board.getSquarePieceColor(rank - 1, file - 1).equals(Color.BLACK)) {
                 moves.add(new Position(rank - 1, file - 1));
             }
-            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1) == BLACK) {
+            if (file < 7 && board.getSquarePieceColor(rank - 1, file + 1).equals(Color.BLACK)) {
                 moves.add(new Position(rank - 1, file + 1));
             }
         } else {
@@ -76,10 +78,10 @@ public class Pawn extends Piece {
                     && board.isSquareEmpty(rank + 2, file)) {
                 moves.add(new Position(rank + 2, file));
             }
-            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1) == WHITE) {
+            if (file > 0 && board.getSquarePieceColor(rank + 1, file - 1).equals(Color.WHITE)) {
                 moves.add(new Position(rank + 1, file - 1));
             }
-            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1) == WHITE) {
+            if (file < 7 && board.getSquarePieceColor(rank + 1, file + 1).equals(Color.WHITE)) {
                 moves.add(new Position(rank + 1, file + 1));
             }
         }

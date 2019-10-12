@@ -2,6 +2,8 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
+import chess.Position;
+import chess.Color;
 
 /**
  * Represents a knight in chess.
@@ -17,7 +19,7 @@ public class Knight extends Piece {
      * @param board the board this knight is on
      * @param color the color of this knight
      */
-    public Knight(Board board, int color) {
+    public Knight(Board board, Color color) {
         super(board, color);
     }
 

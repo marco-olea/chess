@@ -2,6 +2,8 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
+import chess.Position;
+import chess.Color;
 
 /**
  * Represents a queen in chess.
@@ -17,7 +19,7 @@ public class Queen extends Piece {
      * @param board the board this queen is on
      * @param color the color of this queen
      */
-    public Queen(Board board, int color) {
+    public Queen(Board board, Color color) {
         super(board, color);
     }
 
@@ -84,11 +86,11 @@ public class Queen extends Piece {
     private boolean moveCapturesOrSquareHasFriendlyPiece(int rank, 
                                                          int file, 
                                                          List<Position> legalMoves) {
-        var squareColor = getBoard().getSquarePieceColor(rank, file);
-        if (squareColor != getColor()) {
+        Color squareColor = getBoard().getSquarePieceColor(rank, file);
+        if (!squareColor.equals(getColor())) {
             legalMoves.add(new Position(rank, file));
         }
-        return squareColor != -1;
+        return !squareColor.equals(Color.NONE);
     }
 
 }

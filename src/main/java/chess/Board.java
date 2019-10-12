@@ -1,8 +1,13 @@
 package chess;
 
+import java.util.List;
 import chess.pieces.Piece;
+import chess.pieces.Bishop;
+import chess.pieces.Knight;
+import chess.pieces.Queen;
+import chess.pieces.Pawn;
 import chess.pieces.King;
-import java.util.ArrayList;
+import chess.pieces.Rook;
 
 /**
  * A standard 8x8 chess board.
@@ -53,29 +58,54 @@ public class Board {
     }
 
     private Square[][] squares;
-    private int turn;
-    private int initialLivePieceCount; // Used for adding all initial 32 live pieces.
+    private List<Piece> liveWhitePieces;
+    private List<Piece> liveBlackPieces;
+    private Color turn;
     private King whiteKing;
     private King blackKing;
-    private ArrayList<Piece> liveWhitePieces;
-    private ArrayList<Piece> liveBlackPieces;
 
     /**
      * Creates a board with empty squares (no pieces).
      */
     public Board() {
         squares = new Square[8][8];
+        liveWhitePieces = new java.util.LinkedList<>();
+        liveBlackPieces = new java.util.LinkedList<>();
+        turn = Color.WHITE;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 squares[i][j] = new Square();
+                if (i >= 2 && i <= 5) {
+                    continue;
+                }
+                Color color = (i == 6 || i == 7) ? Color.WHITE : Color.BLACK;
+                Piece piece = (i == 1 || i == 6) ? new Pawn(this, color) : switch (j) {
+                    case 0, 7 -> new Rook(this, color);
+                    case 1, 6 -> new Knight(this, color);
+                    case 2, 5 -> new Bishop(this, color);
+                    case 3    -> new Queen(this, color);
+                    default   -> {
+                        King king = new King(this, color);
+                        if (color == Color.WHITE) {
+                            whiteKing = king;
+                        } else {
+                            blackKing = king;
+                        }
+                        yield king;
+                    }
+                };
+                setPiece(piece, i, j);
+                (color == Color.WHITE ? liveWhitePieces : liveBlackPieces).add(piece);
             }
         }
-        turn = Piece.WHITE;
-        liveWhitePieces = new ArrayList<>();
-        liveBlackPieces = new ArrayList<>();
     }
 
-    public int getTurn() {
+    /**
+     * Returns the color of the player whose turn it is.
+     * 
+     * @return the color of the player whose turn it is
+     */
+    public Color getTurn() {
         return turn;
     }
 
@@ -102,15 +132,6 @@ public class Board {
     public void setPiece(Piece piece, int rank, int file) {
         if (piece != null) {
             piece.setPosition(rank, file);
-            if (initialLivePieceCount < 32) {
-                (piece.getColor() == Piece.WHITE ? liveWhitePieces : liveBlackPieces).add(piece);
-                if (piece.getColor() == Piece.WHITE && piece.getClass() == King.class) {
-                    whiteKing = (King) piece;
-                } else if (piece.getColor() == Piece.BLACK && piece.getClass() == King.class) {
-                    blackKing = (King) piece;
-                }
-                initialLivePieceCount++;
-            }
         }
         squares[rank][file].setPiece(piece);
     }
@@ -131,11 +152,11 @@ public class Board {
             Piece capturedPiece = getPiece(nextRank, nextFile);
             setPiece(square.getPiece(), nextRank, nextFile);
             setPiece(null, prevRank, prevFile);
-            var opponentLivePieces = turn == Piece.WHITE ? liveBlackPieces : liveWhitePieces;
+            var opponentLivePieces = turn == Color.WHITE ? liveBlackPieces : liveWhitePieces;
             if (capturedPiece != null) {
-                opponentLivePieces.remove(opponentLivePieces.indexOf(capturedPiece));
+                opponentLivePieces.remove(capturedPiece);
             }
-            turn = turn == Piece.WHITE ? Piece.BLACK : Piece.WHITE;
+            turn = turn == Color.WHITE ? Color.BLACK : Color.WHITE;
         }
     }
 
@@ -156,23 +177,31 @@ public class Board {
      * 
      * @param rank the rank of the square
      * @param file the file of the square
-     * @return the piece's color or -1 if the square in the specified position is
+     * @return the piece's color or null if the square in the specified position is
      *         empty
-     * @see chess.pieces.Piece#WHITE
-     * @see chess.pieces.Piece#BLACK
+     * @see chess.Color#WHITE
+     * @see chess.Color#BLACK
      */
-    public int getSquarePieceColor(int rank, int file) {
-        return isSquareEmpty(rank, file) ? -1 : squares[rank][file].getPiece().getColor();
+    public Color getSquarePieceColor(int rank, int file) {
+        return isSquareEmpty(rank, file) ? Color.NONE : squares[rank][file].getPiece().getColor();
     }
 
+    /**
+     * Determines if the player whose turn it is is in check.
+     * 
+     * @return <code>true</code> if it's in check
+     */
     public boolean isInCheck() {
-        return isInCheck(turn);
-    }
-
-    public boolean isInCheck(int color) {
-        var opponentLivePieces = color == Piece.WHITE ? liveBlackPieces : liveWhitePieces;
-        Piece king = color == Piece.WHITE ? whiteKing : blackKing;
-        for (var piece: opponentLivePieces) {
+        List<Piece> opponentLivePieces;
+        King king;
+        if (turn.equals(Color.WHITE)) {
+            opponentLivePieces = liveBlackPieces;
+            king = whiteKing;
+        } else {
+            opponentLivePieces = liveWhitePieces;
+            king = blackKing;
+        }
+        for (Piece piece: opponentLivePieces) {
             if (king.isInPath(piece)) {
                 return true;
             }
@@ -184,14 +213,14 @@ public class Board {
         Piece prevPiece = getPiece(prevRank, prevFile), nextPiece = getPiece(nextRank, nextFile);
         setPiece(prevPiece, nextRank, nextFile);
         setPiece(null, prevRank, prevFile);
-        var opponentLivePieces = prevPiece.getColor() == Piece.WHITE ?
+        var opponentLivePieces = prevPiece.getColor() == Color.WHITE ?
                 liveBlackPieces : liveWhitePieces;
         int index = opponentLivePieces.indexOf(nextPiece);
         if (index != -1) {
-            opponentLivePieces.remove(index);
+            opponentLivePieces.remove(nextPiece);
         }
         boolean causesCheck = false;
-        if (isInCheck(prevPiece.getColor())) {
+        if (isInCheck()) {
             causesCheck = true;
         }
         if (index != -1) {

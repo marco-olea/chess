@@ -2,6 +2,8 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
+import chess.Position;
+import chess.Color;
 
 /**
  * Represents a rook in chess.
@@ -17,7 +19,7 @@ public class Rook extends Piece {
      * @param board the board this rook is on
      * @param color the color of this rook
      */
-    public Rook(Board board, int color) {
+    public Rook(Board board, Color color) {
         super(board, color);
     }
 
@@ -64,11 +66,11 @@ public class Rook extends Piece {
     private boolean moveCapturesOrSquareHasFriendlyPiece(int rank, 
                                                          int file, 
                                                          List<Position> legalMoves) {
-        var squareColor = getBoard().getSquarePieceColor(rank, file);
-        if (squareColor != getColor()) {
+        Color squareColor = getBoard().getSquarePieceColor(rank, file);
+        if (!squareColor.equals(getColor())) {
             legalMoves.add(new Position(rank, file));
         }
-        return squareColor != -1;
+        return !squareColor.equals(Color.NONE);
     }
 
 }
