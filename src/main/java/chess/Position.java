@@ -23,6 +23,17 @@ public class Position {
     }
 
     /**
+     * Return a new <code>Position</code> created with the given parameters.
+     * 
+     * @param rank the rank
+     * @param file the file
+     * @return a new Position
+     */
+    public static Position pos(int rank, int file) {
+        return new Position(rank, file);
+    }
+
+    /**
      * Returns the rank.
      * 
      * @return the rank associated with this position

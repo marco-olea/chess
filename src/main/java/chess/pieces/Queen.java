@@ -19,78 +19,57 @@ public class Queen extends Piece {
      * @param board the board this queen is on
      * @param color the color of this queen
      */
-    public Queen(Board board, Color color) {
-        super(board, color);
+    public Queen(Board board, Color color, Position position) {
+        super(board, color, position);
     }
 
     @Override
-    public List<Position> getPaths() {
+    public List<Position> getLegalMoves() {
         var positions = new java.util.LinkedList<Position>();
         int rank = getPosition().getRank(), file = getPosition().getFile();
         
         for (int i = rank - 1; i >= 0; i--) {
-            if (moveCapturesOrSquareHasFriendlyPiece(i, file, positions)) {
+            if (addMoveIfLegal(i, file, positions)) {
                 break;
             }
         }
         for (int j = file + 1; j <= 7; j++) {
-            if (moveCapturesOrSquareHasFriendlyPiece(rank, j, positions)) {
+            if (addMoveIfLegal(rank, j, positions)) {
                 break;
             }
         }
         for (int i = rank + 1; i <= 7; i++) {
-            if (moveCapturesOrSquareHasFriendlyPiece(i, file, positions)) {
+            if (addMoveIfLegal(i, file, positions)) {
                 break;
             }
         }
         for (int j = file - 1; j >= 0; j--) {
-            if (moveCapturesOrSquareHasFriendlyPiece(rank, j, positions)) {
+            if (addMoveIfLegal(rank, j, positions)) {
                 break;
             }
         }
         for (int i = rank - 1, j = file - 1; i >= 0 && j >= 0; i--, j--) {
-            if (moveCapturesOrSquareHasFriendlyPiece(i, j, positions)) {
+            if (addMoveIfLegal(i, j, positions)) {
                 break;
             }
         }
         for (int i = rank - 1, j = file + 1; i >= 0 && j <= 7; i--, j++) {
-            if (moveCapturesOrSquareHasFriendlyPiece(i, j, positions)) {
+            if (addMoveIfLegal(i, j, positions)) {
                 break;
             }
         }
         for (int i = rank + 1, j = file + 1; i <= 7 && j <= 7; i++, j++) {
-            if (moveCapturesOrSquareHasFriendlyPiece(i, j, positions)) {
+            if (addMoveIfLegal(i, j, positions)) {
                 break;
             }
         }
         for (int i = rank + 1, j = file - 1; i <= 7 && j >= 0; i++, j--) {
-            if (moveCapturesOrSquareHasFriendlyPiece(i, j, positions)) {
+            if (addMoveIfLegal(i, j, positions)) {
                 break;
             }
         }
 
         return positions;
-    }
-
-    /**
-     * Determines if a given position is a legal move (square is empty or contains
-     * an opponent's piece).
-     * 
-     * @param rank       the rank to check
-     * @param file       the file to check
-     * @param legalMoves the list to add the specified position to if it is a legal
-     *                   move
-     * @return <code>true</code> if the square in the specified position was not
-     *         empty
-     */
-    private boolean moveCapturesOrSquareHasFriendlyPiece(int rank, 
-                                                         int file, 
-                                                         List<Position> legalMoves) {
-        Color squareColor = getBoard().getSquarePieceColor(rank, file);
-        if (!squareColor.equals(getColor())) {
-            legalMoves.add(new Position(rank, file));
-        }
-        return !squareColor.equals(Color.NONE);
     }
 
 }

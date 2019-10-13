@@ -38,6 +38,7 @@ public class Sketch extends PApplet {
     private Piece selectedPiece;
     private Position selectedPosition;
     private boolean choosingNextMove;
+    private boolean gameIsOver;
 
     /**
      * Sets up the window, turns off looping, loads piece image files, creates board, and assigns
@@ -76,7 +77,7 @@ public class Sketch extends PApplet {
                 if (i >= 2 && i <= 5) {
                     continue;
                 }
-                Piece piece = board.getPiece(pos(i, j));
+                Piece piece = board.getPiece(new Position(i, j));
                 Color color = piece.getColor();
                 PImage image = switch (j) {
                     case 0, 7 -> color.equals(Color.WHITE) ? wRookImg : bRookImg;
@@ -103,38 +104,46 @@ public class Sketch extends PApplet {
         background(255);
 
         // Board
+        stroke(SQUARE_BORDER_COLOR);
+        strokeWeight(SQUARE_BORDER_WIDTH);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (selectedPiece != null && selectedPiece.isLegalMove(pos(i, j))) {
-                    stroke(POTENTIAL_SQUARE_BORDER_COLOR);
-                    strokeWeight(POTENTIAL_SQUARE_BORDER_WIDTH);
-                } else {
-                    stroke(SQUARE_BORDER_COLOR);
-                    strokeWeight(SQUARE_BORDER_WIDTH);
-                }
-                fill((i + j) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
-                rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+                drawSquare(i, j);
             }
         }
 
         // Selection
         if (choosingNextMove) {
-            int rank = selectedPosition.getRank(), file = selectedPosition.getFile();
+            stroke(POTENTIAL_SQUARE_BORDER_COLOR);
+            strokeWeight(POTENTIAL_SQUARE_BORDER_WIDTH);
+            for (Position move: selectedPiece.getLegalMoves()) {
+                drawSquare(move.getRank(), move.getFile());
+            }
             stroke(SELECTED_SQUARE_BORDER_COLOR);
             strokeWeight(SELECTED_SQUARE_BORDER_WIDTH);
-            fill((rank + file) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
-            rect(file * SQUARE_SIZE, rank * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+            drawSquare(selectedPosition.getRank(), selectedPosition.getFile());
         }
 
         // Pieces
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (!board.isSquareEmpty(pos(i, j))) {
-                    image(images.get(board.getPiece(pos(i, j))), 
+                Position position = new Position(i, j);
+                if (!board.isSquareEmpty(position)) {
+                    image(images.get(board.getPiece(position)), 
                           j * SQUARE_SIZE + SQUARE_MARGIN, i * SQUARE_SIZE + SQUARE_MARGIN,
                           IMAGE_SIZE, IMAGE_SIZE);
                 }
             }
+        }
+
+        // Checkmate or stalemate
+        if (!gameIsOver && board.isCheckmate()) {
+            String winner = board.getTurn().equals(Color.WHITE) ? " Black " : " White ";
+            javax.swing.JOptionPane.showMessageDialog(null, "Checkmate!" + winner + "wins!");
+            gameIsOver = true;
+        } else if (!gameIsOver && board.isStalemate()) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Stalemate!");
+            gameIsOver = true;
         }
     }
 
@@ -153,13 +162,13 @@ public class Sketch extends PApplet {
         // If a player attempted to move the selected piece
         if (choosingNextMove) {
             board.movePiece(selectedPiece, 
-                            pos(mapMouseCoordinateToRankOrFile(event.getY()),
-                                mapMouseCoordinateToRankOrFile(event.getX())));
+                            new Position(mapMouseCoordinateToRankOrFile(event.getY()),
+                                         mapMouseCoordinateToRankOrFile(event.getX())));
             choosingNextMove = false;
             selectedPiece = null;
         } else { // If a player attempted to select a piece
-            selectedPosition = pos(mapMouseCoordinateToRankOrFile(event.getY()),
-                                   mapMouseCoordinateToRankOrFile(event.getX()));
+            selectedPosition = new Position(mapMouseCoordinateToRankOrFile(event.getY()),
+                                            mapMouseCoordinateToRankOrFile(event.getX()));
             if (board.getTurn() == board.getSquarePieceColor(selectedPosition)) {
                 selectedPiece = board.getPiece(selectedPosition);
                 choosingNextMove = true;
@@ -179,15 +188,11 @@ public class Sketch extends PApplet {
         return c / (BOARD_SIZE / 8);
     }
 
-    /**
-     * Convenience method for creating instances of {@link chess.Position}.
-     * 
-     * @param rank the new position's rank
-     * @param file the new position's file
-     * @return a new position
-     */
-    private Position pos(int rank, int file) {
-        return new Position(rank, file);
+    private void drawSquare(int i, int j) {
+        fill(0xffffffff);
+        rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+        fill((i + j) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
+        rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
     }
 
 }

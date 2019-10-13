@@ -53,7 +53,7 @@
              defaultexcludes="yes"
              destdir="${doc.dir}"
              charset="UTF-8"
-             author="false"
+             author="true"
              version="false"
              use="true"
              access="public"

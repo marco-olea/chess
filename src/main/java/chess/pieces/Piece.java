@@ -24,17 +24,10 @@ public abstract class Piece {
      * @param board the board this piece is on
      * @param color the color of this piece
      */
-    public Piece(Board board, Color color){//}, Position position) {
+    public Piece(Board board, Color color, Position position) {
         this.board = board;
         this.color = color;
-        // this.position = position;
-    }
-
-    public abstract List<Position> getPaths();
-
-
-    public boolean isInPath(Piece piece) {
-        return piece.getPaths().contains(position);
+        this.position = position;
     }
 
     /**
@@ -42,11 +35,7 @@ public abstract class Piece {
      * 
      * @return the legal moves for this piece
      */
-    public List<Position> getLegalMoves() {
-        var moves = getPaths();
-        moves.removeIf(move -> board.moveCausesCheck(this, move));
-        return moves;
-    }
+    public abstract List<Position> getLegalMoves();
 
     /**
      * Determines if the specified move is legal for this piece.
@@ -56,6 +45,24 @@ public abstract class Piece {
      */
     public boolean isLegalMove(Position move) {
         return getLegalMoves().contains(move);
+    }
+
+    /**
+     * Returns a reference to the board that this piece is on.
+     * 
+     * @return the board this piece is on
+     */
+    public Board getBoard() {
+        return board;
+    }
+
+    /**
+     * Returns the color of this piece.
+     * 
+     * @return the color of this piece
+     */
+    public Color getColor() {
+        return color;
     }
 
     /**
@@ -74,15 +81,6 @@ public abstract class Piece {
      */
     public void setPosition(Position position) {
         this.position = position;
-    }
-
-    /**
-     * Returns the color of this piece.
-     * 
-     * @return the color of this piece
-     */
-    public Color getColor() {
-        return color;
     }
 
     /**
@@ -131,12 +129,39 @@ public abstract class Piece {
     }
 
     /**
-     * Returns a reference to the board that this piece is on.
+     * Returns <code>true</code> if this piece does not belong to the current player or the move
+     * puts said player in check.
      * 
-     * @return the board this piece is on
+     * @param move
+     * @return <code>true</code> if the specified move puts the player in check 
      */
-    protected Board getBoard() {
-        return board;
+    protected boolean moveCausesCheck(Position move) {
+        return board.moveCausesCheck(this, move);
+    }
+
+    /**
+     * Adds (<code>rank</code>, <code>file</code>) to the specified list of moves if both of these 
+     * conditions hold:
+     * <ul>
+     *   <li>The square does not have a friendly piece, and</li>
+     *   <li>This piece belongs to the current player and moving it to the square does not put
+     *       said player in check.</li> 
+     * </ul>
+     * This is a utility method used by getLegalMoves() for breaking out of loops when a non-empty
+     * square is reached.
+     * 
+     * @param rank       the rank to check
+     * @param file       the file to check
+     * @param legalMoves the list to add the specified position to if it is a legal move
+     * @return <code>true</code> if the square in the specified position was not empty
+     */
+    protected boolean addMoveIfLegal(int rank, int file, List<Position> legalMoves) {
+        Position move = new Position(rank, file);
+        Color squareColor = board.getSquarePieceColor(move);
+        if (!squareColor.equals(getColor()) && !moveCausesCheck(move)) {
+            legalMoves.add(move);
+        }
+        return !squareColor.equals(Color.NONE);
     }
 
 }

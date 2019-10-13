@@ -12,8 +12,8 @@ import chess.pieces.Rook;
 /**
  * A standard 8x8 chess board.
  * 
- * The term "current player" will be used throughout this class's documentation to refer to the
- * color of the pieces whose turn it is to act next.
+ * The term "current player" will be used throughout these documents to refer to the color of the
+ * pieces whose turn it is to act next.
  * 
  * @author Marco Olea
  * @version 1.0
@@ -63,6 +63,7 @@ public class Board {
     private Square[][] squares;
     private List<Piece> liveWhitePieces;
     private List<Piece> liveBlackPieces;
+    private List<Position> currentPlayerPossibleMoves;
     private Color turn;
     private King whiteKing;
     private King blackKing;
@@ -74,6 +75,7 @@ public class Board {
         squares = new Square[8][8];
         liveWhitePieces = new java.util.LinkedList<>();
         liveBlackPieces = new java.util.LinkedList<>();
+        currentPlayerPossibleMoves = new java.util.LinkedList<>();
         turn = Color.WHITE;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -82,13 +84,14 @@ public class Board {
                     continue;
                 }
                 Color color = (i == 6 || i == 7) ? Color.WHITE : Color.BLACK;
-                Piece piece = (i == 1 || i == 6) ? new Pawn(this, color) : switch (j) {
-                    case 0, 7 -> new Rook(this, color);
-                    case 1, 6 -> new Knight(this, color);
-                    case 2, 5 -> new Bishop(this, color);
-                    case 3    -> new Queen(this, color);
+                Position position = new Position(i, j);
+                Piece piece = (i == 1 || i == 6) ? new Pawn(this, color, position) : switch (j) {
+                    case 0, 7 -> new Rook(this, color, position);
+                    case 1, 6 -> new Knight(this, color, position);
+                    case 2, 5 -> new Bishop(this, color, position);
+                    case 3    -> new Queen(this, color, position);
                     default   -> {
-                        King king = new King(this, color);
+                        King king = new King(this, color, position);
                         if (color == Color.WHITE) {
                             whiteKing = king;
                         } else {
@@ -97,10 +100,11 @@ public class Board {
                         yield king;
                     }
                 };
-                setPiece(piece, new Position(i, j));
+                squares[i][j].setPiece(piece);
                 (color == Color.WHITE ? liveWhitePieces : liveBlackPieces).add(piece);
             }
         }
+        computeCurrentPlayerPossibleMoves();
     }
 
     /**
@@ -162,6 +166,7 @@ public class Board {
         setPiece(piece, move);
         (turn.equals(Color.WHITE) ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);
         turn = turn.equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
+        computeCurrentPlayerPossibleMoves();
         return true;
     }
 
@@ -171,9 +176,13 @@ public class Board {
      * 
      * @param piece the piece to be moved; can be <code>null</code>
      * @param move  the position of the square to move to the piece to
-     * @return <code>true</code> if the specified move puts the player in check
+     * @return <code>false</code> if the piece does not belong to the current player or if the
+     *         specified move does not put the current player in check
      */
     public boolean moveCausesCheck(Piece piece, Position move) {
+        if (!turn.equals(piece.getColor())) {
+            return false;
+        }
         Piece capturedPiece = getPiece(move);
         Position prevPosition = piece.getPosition();
         setPiece(piece, move);
@@ -209,11 +218,22 @@ public class Board {
             king = blackKing;
         }
         for (Piece piece: opponentLivePieces) {
-            if (king.isInPath(piece)) {
+            if (piece.getClass() == Pawn.class
+                    && ((Pawn) piece).getAttackingMoves().contains(king.getPosition())) {
+                return true;
+            } else if (piece.isLegalMove(king.getPosition())) {
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean isCheckmate() {
+        return currentPlayerPossibleMoves.isEmpty() && isInCheck();
+    }
+
+    public boolean isStalemate() {
+        return currentPlayerPossibleMoves.isEmpty() && !isInCheck();
     }
 
     /**
@@ -235,6 +255,13 @@ public class Board {
      */
     public Color getSquarePieceColor(Position position) {
         return isSquareEmpty(position) ? Color.NONE : getPiece(position).getColor();
+    }
+
+    private void computeCurrentPlayerPossibleMoves() {
+        currentPlayerPossibleMoves.clear();
+        for (Piece piece: turn.equals(Color.WHITE) ? liveWhitePieces : liveBlackPieces) {
+            currentPlayerPossibleMoves.addAll(piece.getLegalMoves());
+        }
     }
 
 }

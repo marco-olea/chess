@@ -19,48 +19,38 @@ public class King extends Piece {
      * @param board the board this king is on
      * @param color the color of this king
      */
-    public King(Board board, Color color) {
-        super(board, color);
+    public King(Board board, Color color, Position position) {
+        super(board, color, position);
     }
 
     @Override
-    public List<Position> getPaths() {
+    public List<Position> getLegalMoves() {
         var positions = new java.util.LinkedList<Position>();
-        var board = getBoard();
-        var color = getColor();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 
-        if (rank - 1 >= 0 && file - 1 >= 0 
-                && board.getSquarePieceColor(rank - 1, file - 1) != color) {
-            positions.add(new Position(rank - 1, file - 1));
+        if (rank - 1 >= 0 && file - 1 >= 0) {
+            addMoveIfLegal(rank - 1, file - 1, positions);
         }
-        if (rank - 1 >= 0 
-                && board.getSquarePieceColor(rank - 1, file) != color) {
-            positions.add(new Position(rank - 1, file));
+        if (rank - 1 >= 0) {
+            addMoveIfLegal(rank - 1, file, positions);
         }
-        if (rank - 1 >= 0 && file + 1 <= 7 
-                && board.getSquarePieceColor(rank - 1, file + 1) != color) {
-            positions.add(new Position(rank - 1, file + 1));
+        if (rank - 1 >= 0 && file + 1 <= 7) {
+            addMoveIfLegal(rank - 1, file + 1, positions);
         }
-        if (file + 1 <= 7 
-                && board.getSquarePieceColor(rank, file + 1) != color) {
-            positions.add(new Position(rank, file + 1));
+        if (file + 1 <= 7) {
+            addMoveIfLegal(rank, file + 1, positions);
         }
-        if (rank + 1 <= 7 && file + 1 <= 7 
-                && board.getSquarePieceColor(rank + 1, file + 1) != color) {
-            positions.add(new Position(rank + 1, file + 1));
+        if (rank + 1 <= 7 && file + 1 <= 7) {
+            addMoveIfLegal(rank + 1, file + 1, positions);
         }
-        if (rank + 1 <= 7 
-                && board.getSquarePieceColor(rank + 1, file) != color) {
-            positions.add(new Position(rank + 1, file));
+        if (rank + 1 <= 7) {
+            addMoveIfLegal(rank + 1, file, positions);
         }
-        if (rank + 1 <= 7 && file - 1 >= 0 
-                && board.getSquarePieceColor(rank + 1, file - 1) != color) {
-            positions.add(new Position(rank + 1, file - 1));
+        if (rank + 1 <= 7 && file - 1 >= 0) {
+            addMoveIfLegal(rank + 1, file - 1, positions);
         }
-        if (file - 1 >= 0 
-                && board.getSquarePieceColor(rank, file - 1) != color) {
-            positions.add(new Position(rank, file - 1));
+        if (file - 1 >= 0) {
+            addMoveIfLegal(rank, file - 1, positions);
         }
         
         return positions;
