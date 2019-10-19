@@ -12,9 +12,6 @@ import chess.pieces.Rook;
 /**
  * A singleton class for representing a standard 8x8 chess board.
  * 
- * The term "current player" will be used throughout these documents to refer to the color of the
- * pieces whose turn it is to act next.
- * 
  * @author Marco Olea
  * @version 1.0
  * @see chess.pieces.Piece
