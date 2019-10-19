@@ -8,7 +8,7 @@
   <property name="build.java.dir" 	   value="${build.dir}/classes/java/main" />
   <property name="build.resources.dir" value="${build.dir}/resources/main" />
   <property name="lib.dir"             value="lib" />
-  <property name="doc.dir"             value="doc" />
+  <property name="javadoc.dir"         value="javadoc" />
   <property name="main.class"          value="app.Main" />
 
   <path id="build.libclasspath">
@@ -44,14 +44,14 @@
     </copy>
   </target>
 
-  <target name="doc" depends="compile">
-    <mkdir dir="${doc.dir}" />
+  <target name="javadoc" depends="compile">
+    <mkdir dir="${javadoc.dir}" />
     <javadoc sourcepath="${src.java.dir}"
              packagenames="*"
              source="${java.source}"
              classpathref="build.libclasspath"
              defaultexcludes="yes"
-             destdir="${doc.dir}"
+             destdir="${javadoc.dir}"
              charset="UTF-8"
              author="true"
              version="false"

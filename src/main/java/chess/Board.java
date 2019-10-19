@@ -138,13 +138,13 @@ public class Board {
 
     /**
      * Moves a piece on the board from one position to another.
-     * Does nothing if: <br> 
+     * Does nothing if one of the following statements is true: <br> 
      * <ul>
      *   <li><code>piece</code> is <code>null</code>,</li>
      *   <li>the specified piece does not belong to the current player,</li>
-     *   <li>the current player is attempting to move a piece to the same position it's already in,
+     *   <li>the current player is attempting to move a piece to the same position it's already in, or
      *   <li>the move the current player is attempting to make is illegal.
-     * </ul> <br>
+     * </ul>
      * Returns <code>true</code> if the move was made.
      * 
      * @param piece the piece to be moved; can be <code>null</code>

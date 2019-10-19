@@ -2,6 +2,7 @@
 *.class
 build/
 doc/
+javadoc/
 
 # Log file
 *.log
