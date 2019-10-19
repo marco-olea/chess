@@ -68,7 +68,7 @@
 
   <target name="clean">
     <delete dir="${build.dir}" />
-    <delete dir="${doc.dir}" />
+    <delete dir="${javadoc.dir}" />
   </target>
 
 </project>
