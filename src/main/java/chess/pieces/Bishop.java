@@ -1,7 +1,6 @@
 package chess.pieces;
 
 import java.util.List;
-import chess.Board;
 import chess.Position;
 import chess.Color;
 
@@ -14,13 +13,12 @@ import chess.Color;
 public class Bishop extends Piece {
 
     /**
-     * Creates a bishop of the specified color to be set on the specified board.
+     * Creates a bishop of the specified color.
      * 
-     * @param board the board this bishop is on
      * @param color the color of this bishop
      */
-    public Bishop(Board board, Color color, Position position) {
-        super(board, color, position);
+    public Bishop(Color color) {
+        super(color);
     }
 
     @Override

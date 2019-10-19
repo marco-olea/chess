@@ -56,8 +56,8 @@ public class Sketch extends PApplet {
         surface.setTitle(WINDOW_TITLE);
         noLoop();
 
-        board = new Board();
         images = new HashMap<>(12);
+        board = Board.getInstance();
 
         PImage wPawnImg = loadImage(getClass().getResource("/white-pawn-50.png").getPath());
         PImage wBishopImg = loadImage(getClass().getResource("/white-bishop-50.png").getPath());
@@ -80,14 +80,14 @@ public class Sketch extends PApplet {
                 Piece piece = board.getPiece(new Position(i, j));
                 Color color = piece.getColor();
                 PImage image = switch (j) {
-                    case 0, 7 -> color.equals(Color.WHITE) ? wRookImg : bRookImg;
-                    case 1, 6 -> color.equals(Color.WHITE) ? wKnightImg : bKnightImg;
-                    case 2, 5 -> color.equals(Color.WHITE) ? wBishopImg : bBishopImg;
-                    case 3 -> color.equals(Color.WHITE) ? wQueenImg : bQueenImg;
-                    default -> color.equals(Color.WHITE) ? wKingImg : bKingImg;
+                    case 0, 7 -> color == Color.WHITE ? wRookImg : bRookImg;
+                    case 1, 6 -> color == Color.WHITE ? wKnightImg : bKnightImg;
+                    case 2, 5 -> color == Color.WHITE ? wBishopImg : bBishopImg;
+                    case 3 -> color == Color.WHITE ? wQueenImg : bQueenImg;
+                    default -> color == Color.WHITE ? wKingImg : bKingImg;
                 };
                 if (i == 1 || i == 6) {
-                    image = color.equals(Color.WHITE) ? wPawnImg : bPawnImg;
+                    image = color == Color.WHITE ? wPawnImg : bPawnImg;
                 }
                 images.put(piece, image);
             }
@@ -138,11 +138,11 @@ public class Sketch extends PApplet {
 
         // Checkmate or stalemate
         if (!gameIsOver && board.isCheckmate()) {
-            String winner = board.getTurn().equals(Color.WHITE) ? " Black " : " White ";
-            javax.swing.JOptionPane.showMessageDialog(null, "Checkmate!" + winner + "wins!");
+            String winner = board.getTurn() == Color.WHITE ? " Black " : " White ";
+            main(Dialog.class, new String[]{width + "", "Checkmate!" + winner + "wins!"});
             gameIsOver = true;
         } else if (!gameIsOver && board.isStalemate()) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Stalemate!");
+            main(Dialog.class, new String[]{width + "", "Stalemate! It's a draw!"});
             gameIsOver = true;
         }
     }
@@ -169,7 +169,7 @@ public class Sketch extends PApplet {
         } else { // If a player attempted to select a piece
             selectedPosition = new Position(mapMouseCoordinateToRankOrFile(event.getY()),
                                             mapMouseCoordinateToRankOrFile(event.getX()));
-            if (board.getTurn() == board.getSquarePieceColor(selectedPosition)) {
+            if (board.getTurn() == board.getPieceColor(selectedPosition)) {
                 selectedPiece = board.getPiece(selectedPosition);
                 choosingNextMove = true;
             }
@@ -188,6 +188,13 @@ public class Sketch extends PApplet {
         return c / (BOARD_SIZE / 8);
     }
 
+    /**
+     * Draws an appropiately-colored square on the board, of width and height equal to 
+     * <code>SQUARE_SIZE</code>.
+     * 
+     * @param i the x-coordinate
+     * @param j the y-coordinate
+     */
     private void drawSquare(int i, int j) {
         fill(0xffffffff);
         rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);

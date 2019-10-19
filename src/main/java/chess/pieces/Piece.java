@@ -14,20 +14,16 @@ import chess.Color;
  */
 public abstract class Piece {
 
-    private Board board;
     private Color color;
     private Position position;
 
     /**
-     * Creates a piece of the specified color to be set on the specified board.
+     * Creates a piece of the specified color.
      * 
-     * @param board the board this piece is on
      * @param color the color of this piece
      */
-    public Piece(Board board, Color color, Position position) {
-        this.board = board;
+    public Piece(Color color) {
         this.color = color;
-        this.position = position;
     }
 
     /**
@@ -45,15 +41,6 @@ public abstract class Piece {
      */
     public boolean isLegalMove(Position move) {
         return getLegalMoves().contains(move);
-    }
-
-    /**
-     * Returns a reference to the board that this piece is on.
-     * 
-     * @return the board this piece is on
-     */
-    public Board getBoard() {
-        return board;
     }
 
     /**
@@ -129,17 +116,6 @@ public abstract class Piece {
     }
 
     /**
-     * Returns <code>true</code> if this piece does not belong to the current player or the move
-     * puts said player in check.
-     * 
-     * @param move
-     * @return <code>true</code> if the specified move puts the player in check 
-     */
-    protected boolean moveCausesCheck(Position move) {
-        return board.moveCausesCheck(this, move);
-    }
-
-    /**
      * Adds (<code>rank</code>, <code>file</code>) to the specified list of moves if both of these 
      * conditions hold:
      * <ul>
@@ -157,11 +133,11 @@ public abstract class Piece {
      */
     protected boolean addMoveIfLegal(int rank, int file, List<Position> legalMoves) {
         Position move = new Position(rank, file);
-        Color squareColor = board.getSquarePieceColor(move);
-        if (!squareColor.equals(getColor()) && !moveCausesCheck(move)) {
+        Color squareColor = Board.getInstance().getPieceColor(move);
+        if (squareColor != color && !Board.getInstance().moveCausesCheck(this, move)) {
             legalMoves.add(move);
         }
-        return !squareColor.equals(Color.NONE);
+        return squareColor != Color.NONE;
     }
 
 }

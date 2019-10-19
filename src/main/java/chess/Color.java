@@ -3,6 +3,8 @@ package chess;
 /**
  * Piece colors in the game of chess.
  * 
+ * @author Marco Olea
+ * @version 1.0
  * @see chess.pieces.Piece
  */
 public enum Color {

@@ -10,7 +10,7 @@ import chess.pieces.King;
 import chess.pieces.Rook;
 
 /**
- * A standard 8x8 chess board.
+ * A singleton class for representing a standard 8x8 chess board.
  * 
  * The term "current player" will be used throughout these documents to refer to the color of the
  * pieces whose turn it is to act next.
@@ -60,6 +60,7 @@ public class Board {
 
     }
 
+    private static Board instance;
     private Square[][] squares;
     private List<Piece> liveWhitePieces;
     private List<Piece> liveBlackPieces;
@@ -71,7 +72,7 @@ public class Board {
     /**
      * Creates a board populated with the initial sixteen white and sixteen black pieces.
      */
-    public Board() {
+    private Board() {
         squares = new Square[8][8];
         liveWhitePieces = new java.util.LinkedList<>();
         liveBlackPieces = new java.util.LinkedList<>();
@@ -84,14 +85,13 @@ public class Board {
                     continue;
                 }
                 Color color = (i == 6 || i == 7) ? Color.WHITE : Color.BLACK;
-                Position position = new Position(i, j);
-                Piece piece = (i == 1 || i == 6) ? new Pawn(this, color, position) : switch (j) {
-                    case 0, 7 -> new Rook(this, color, position);
-                    case 1, 6 -> new Knight(this, color, position);
-                    case 2, 5 -> new Bishop(this, color, position);
-                    case 3    -> new Queen(this, color, position);
+                Piece piece = (i == 1 || i == 6) ? new Pawn(color) : switch (j) {
+                    case 0, 7 -> new Rook(color);
+                    case 1, 6 -> new Knight(color);
+                    case 2, 5 -> new Bishop(color);
+                    case 3    -> new Queen(color);
                     default   -> {
-                        King king = new King(this, color, position);
+                        King king = new King(color);
                         if (color == Color.WHITE) {
                             whiteKing = king;
                         } else {
@@ -100,11 +100,23 @@ public class Board {
                         yield king;
                     }
                 };
-                squares[i][j].setPiece(piece);
+                setPiece(piece, new Position(i, j));
                 (color == Color.WHITE ? liveWhitePieces : liveBlackPieces).add(piece);
             }
         }
-        computeCurrentPlayerPossibleMoves();
+    }
+
+    /**
+     * Returns this runtime's <code>Board</code> instance.
+     * 
+     * @return a unique <code>Board</code>
+     */
+    public static Board getInstance() {
+        if (instance == null) {
+            instance = new Board();
+            instance.computeCurrentPlayersLegalMoves();
+        }
+        return instance;
     }
 
     /**
@@ -128,27 +140,15 @@ public class Board {
     }
 
     /**
-     * Sets a piece on the board in the specified position.
-     * 
-     * @param piece the piece to set in the specified position; can be <code>null</code>
-     * @param position  the position of the square to set the piece in
-     */
-    public void setPiece(Piece piece, Position position) {
-        if (piece != null) {
-            piece.setPosition(position);
-        }
-        squares[position.getRank()][position.getFile()].setPiece(piece);
-    }
-
-    /**
      * Moves a piece on the board from one position to another.
      * Does nothing if: <br> 
      * <ul>
      *   <li><code>piece</code> is <code>null</code>,</li>
-     *   <li><code>this.getTurn().equals(piece.getColor())</code> is <code>false</code>,</li>
+     *   <li>the specified piece does not belong to the current player,</li>
      *   <li>the current player is attempting to move a piece to the same position it's already in,
      *   <li>the move the current player is attempting to make is illegal.
-     * </ul>
+     * </ul> <br>
+     * Returns <code>true</code> if the move was made.
      * 
      * @param piece the piece to be moved; can be <code>null</code>
      * @param move  the position of the square to move to the piece to
@@ -156,7 +156,7 @@ public class Board {
      */
     public boolean movePiece(Piece piece, Position move) {
         if (piece == null 
-                || !turn.equals(piece.getColor())
+                || turn != piece.getColor()
                 || piece.getPosition().equals(move)
                 || !piece.isLegalMove(move)) {
             return false;
@@ -164,42 +164,10 @@ public class Board {
         Piece capturedPiece = getPiece(move);
         setPiece(null, piece.getPosition());
         setPiece(piece, move);
-        (turn.equals(Color.WHITE) ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);
-        turn = turn.equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
-        computeCurrentPlayerPossibleMoves();
+        (turn == Color.WHITE ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);
+        turn = turn == Color.WHITE ? Color.BLACK : Color.WHITE;
+        computeCurrentPlayersLegalMoves();
         return true;
-    }
-
-    /**
-     * Determines if moving a player's piece to some position on the board will put that player in
-     * check.
-     * 
-     * @param piece the piece to be moved; can be <code>null</code>
-     * @param move  the position of the square to move to the piece to
-     * @return <code>false</code> if the piece does not belong to the current player or if the
-     *         specified move does not put the current player in check
-     */
-    public boolean moveCausesCheck(Piece piece, Position move) {
-        if (!turn.equals(piece.getColor())) {
-            return false;
-        }
-        Piece capturedPiece = getPiece(move);
-        Position prevPosition = piece.getPosition();
-        setPiece(piece, move);
-        setPiece(null, prevPosition);
-        var opponentLivePieces = piece.getColor().equals(Color.WHITE) ?
-                liveBlackPieces : liveWhitePieces;
-        boolean wasRemoved = opponentLivePieces.remove(capturedPiece);
-        boolean causesCheck = false;
-        if (isInCheck()) {
-            causesCheck = true;
-        }
-        if (wasRemoved) {
-            opponentLivePieces.add(capturedPiece);
-        }
-        setPiece(piece, prevPosition);
-        setPiece(capturedPiece, move);
-        return causesCheck;
     }
 
     /**
@@ -208,30 +176,64 @@ public class Board {
      * @return <code>true</code> if the current player is in check
      */
     public boolean isInCheck() {
-        List<Piece> opponentLivePieces;
-        King king;
-        if (turn.equals(Color.WHITE)) {
-            opponentLivePieces = liveBlackPieces;
-            king = whiteKing;
-        } else {
-            opponentLivePieces = liveWhitePieces;
-            king = blackKing;
-        }
-        for (Piece piece: opponentLivePieces) {
-            if (piece.getClass() == Pawn.class
-                    && ((Pawn) piece).getAttackingMoves().contains(king.getPosition())) {
-                return true;
-            } else if (piece.isLegalMove(king.getPosition())) {
+        List<Piece> opponentsPieces = turn == Color.WHITE ? liveBlackPieces : liveWhitePieces;
+        King king = turn == Color.WHITE ? whiteKing : blackKing;
+        boolean check = false;
+        for (Piece piece: opponentsPieces) {
+            if (piece.getClass() == Pawn.class) {
+                check |= ((Pawn) piece).getAttackingMoves().contains(king.getPosition());
+            } else {
+                check |= piece.getLegalMoves().contains(king.getPosition());
+            }
+            if (check) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Determines if moving one of the current player's pieces to some position on the board will
+     * put said player in check. The move need not be legal.
+     * 
+     * @param piece the piece to be moved; can be <code>null</code>
+     * @param move  the position of the square to move to the piece to
+     * @return <code>false</code> if the piece does not belong to the current player or if the
+     *         specified move does not put the current player in check
+     */
+    public boolean moveCausesCheck(Piece piece, Position move) {
+        if (piece == null || turn != piece.getColor()) {
+            return false;
+        }
+        Piece capturedPiece = getPiece(move);
+        Position prevPosition = piece.getPosition();
+        setPiece(piece, move);
+        setPiece(null, prevPosition);
+        var opponentsPieces = piece.getColor() == Color.WHITE ? liveBlackPieces : liveWhitePieces;
+        boolean wasRemoved = opponentsPieces.remove(capturedPiece);
+        boolean causesCheck = isInCheck();
+        if (wasRemoved) {
+            opponentsPieces.add(capturedPiece);
+        }
+        setPiece(piece, prevPosition);
+        setPiece(capturedPiece, move);
+        return causesCheck;
+    }
+
+    /**
+     * Determines if the current player's king has been checkmated.
+     * 
+     * @return <code>true</code> if the current player's king has been checkmated
+     */
     public boolean isCheckmate() {
         return currentPlayerPossibleMoves.isEmpty() && isInCheck();
     }
 
+    /**
+     * Determines if the current player has been stalemated.
+     * 
+     * @return <code>true</code> if the current player has been stalemated
+     */
     public boolean isStalemate() {
         return currentPlayerPossibleMoves.isEmpty() && !isInCheck();
     }
@@ -247,19 +249,36 @@ public class Board {
     }
 
     /**
-     * Gets the color of the piece on some square.
+     * Gets the color of the piece on the specified square.
      * 
      * @param position the position of the square
      * @return the piece's color or {@link chess.Color#NONE} if the square in the specified position
      *         is empty
      */
-    public Color getSquarePieceColor(Position position) {
+    public Color getPieceColor(Position position) {
         return isSquareEmpty(position) ? Color.NONE : getPiece(position).getColor();
     }
 
-    private void computeCurrentPlayerPossibleMoves() {
+    /**
+     * Updates a piece's position on the board.
+     * 
+     * @param piece the piece to set in the specified position; can be <code>null</code>
+     * @param position  the position of the square to set the piece in
+     */
+    private void setPiece(Piece piece, Position position) {
+        if (piece != null) {
+            piece.setPosition(position);
+        }
+        squares[position.getRank()][position.getFile()].setPiece(piece);
+    }
+
+    /**
+     * Updates the list of the current player's legal moves. Used for finding checkmate and/or
+     * stalemate.
+     */
+    private void computeCurrentPlayersLegalMoves() {
         currentPlayerPossibleMoves.clear();
-        for (Piece piece: turn.equals(Color.WHITE) ? liveWhitePieces : liveBlackPieces) {
+        for (Piece piece: turn == Color.WHITE ? liveWhitePieces : liveBlackPieces) {
             currentPlayerPossibleMoves.addAll(piece.getLegalMoves());
         }
     }

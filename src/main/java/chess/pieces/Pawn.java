@@ -14,32 +14,37 @@ import chess.Color;
 public class Pawn extends Piece {
 
     /**
-     * Creates a pawn of the specified color to be set on the specified board.
+     * Creates a pawn of the specified color.
      * 
-     * @param board the board this pawn is on
      * @param color the color of this pawn
      */
-    public Pawn(Board board, Color color, Position position) {
-        super(board, color, position);
+    public Pawn(Color color) {
+        super(color);
     }
 
+    /**
+     * Returns a list of the positions on the board that this pawn can move to to capture an 
+     * opponent's piece.
+     * 
+     * @return a list of this pawn's offensive moves
+     */
     public List<Position> getAttackingMoves() {
         var moves = new java.util.LinkedList<Position>();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 
-        if (getColor().equals(Color.WHITE)) {
-            if (file > 0 && squareIsEmptyAndMoveDoesNotCauseCheck(rank - 1, file - 1)) {
-                moves.add(new Position(rank - 1, file - 1));
+        if (getColor() == Color.WHITE) {
+            if (file > 0 && squareIsEmpty(rank - 1, file - 1)) {
+                addMoveIfLegal(rank - 1, file - 1, moves);
             }
-            if (file < 7 && squareIsEmptyAndMoveDoesNotCauseCheck(rank - 1, file + 1)) {
-                moves.add(new Position(rank - 1, file + 1));
+            if (file < 7 && squareIsEmpty(rank - 1, file + 1)) {
+                addMoveIfLegal(rank - 1, file + 1, moves);
             }
         } else {
-            if (file > 0 && squareIsEmptyAndMoveDoesNotCauseCheck(rank + 1, file - 1)) {
-                moves.add(new Position(rank + 1, file - 1));
+            if (file > 0 && squareIsEmpty(rank + 1, file - 1)) {
+                addMoveIfLegal(rank + 1, file - 1, moves);
             }
-            if (file < 7 && squareIsEmptyAndMoveDoesNotCauseCheck(rank + 1, file + 1)) {
-                moves.add(new Position(rank + 1, file + 1));
+            if (file < 7 && squareIsEmpty(rank + 1, file + 1)) {
+                addMoveIfLegal(rank + 1, file + 1, moves);
             }
         }
 
@@ -51,50 +56,58 @@ public class Pawn extends Piece {
         var moves = new java.util.LinkedList<Position>();
         int rank = getPosition().getRank(), file = getPosition().getFile();
 
-        if (getColor().equals(Color.WHITE)) {
-            if (squareIsEmptyAndMoveDoesNotCauseCheck(rank - 1, file)) {
-                moves.add(new Position(rank - 1, file));
+        if (getColor() == Color.WHITE) {
+            if (squareIsEmpty(rank - 1, file)) {
+                addMoveIfLegal(rank - 1, file, moves);
             }
-            if (rank == 6 
-                    && squareIsEmptyAndMoveDoesNotCauseCheck(rank - 1, file)
-                    && squareIsEmptyAndMoveDoesNotCauseCheck(rank - 2, file)) {
-                moves.add(new Position(rank - 2, file));
+            if (rank == 6 && squareIsEmpty(rank - 1, file) && squareIsEmpty(rank - 2, file)) {
+                addMoveIfLegal(rank - 2, file, moves);
             }
-            if (file > 0 && squareHasOpponentAndMoveDoesNotCauseCheck(rank - 1, file - 1)) {
-                moves.add(new Position(rank - 1, file - 1));
+            if (file > 0 && squareHasOpponent(rank - 1, file - 1)) {
+                addMoveIfLegal(rank - 1, file - 1, moves);
             }
-            if (file < 7 && squareHasOpponentAndMoveDoesNotCauseCheck(rank - 1, file + 1)) {
-                moves.add(new Position(rank - 1, file + 1));
+            if (file < 7 && squareHasOpponent(rank - 1, file + 1)) {
+                addMoveIfLegal(rank - 1, file + 1, moves);
             }
         } else {
-            if (squareIsEmptyAndMoveDoesNotCauseCheck(rank + 1, file)) {
-                moves.add(new Position(rank + 1, file));
+            if (squareIsEmpty(rank + 1, file)) {
+                addMoveIfLegal(rank + 1, file, moves);
             }
-            if (rank == 1 
-                    && squareIsEmptyAndMoveDoesNotCauseCheck(rank + 1, file)
-                    && squareIsEmptyAndMoveDoesNotCauseCheck(rank + 2, file)) {
-                moves.add(new Position(rank + 2, file));
+            if (rank == 1 && squareIsEmpty(rank + 1, file) && squareIsEmpty(rank + 2, file)) {
+                addMoveIfLegal(rank + 2, file, moves);
             }
-            if (file > 0 && squareHasOpponentAndMoveDoesNotCauseCheck(rank + 1, file - 1)) {
-                moves.add(new Position(rank + 1, file - 1));
+            if (file > 0 && squareHasOpponent(rank + 1, file - 1)) {
+                addMoveIfLegal(rank + 1, file - 1, moves);
             }
-            if (file < 7 && squareHasOpponentAndMoveDoesNotCauseCheck(rank + 1, file + 1)) {
-                moves.add(new Position(rank + 1, file + 1));
+            if (file < 7 && squareHasOpponent(rank + 1, file + 1)) {
+                addMoveIfLegal(rank + 1, file + 1, moves);
             }
         }
 
         return moves;
     }
 
-    private boolean squareIsEmptyAndMoveDoesNotCauseCheck(int rank, int file) {
-        Position move = new Position(rank, file);
-        return getBoard().isSquareEmpty(move) && !moveCausesCheck(move);
+    /**
+     * Determines if the square in the given position is empty.
+     * 
+     * @param rank the square's rank
+     * @param file the square's file
+     * @return <code>true</code> if the square is empty
+     */
+    private boolean squareIsEmpty(int rank, int file) {
+        return Board.getInstance().isSquareEmpty(new Position(rank, file));
     }
 
-    private boolean squareHasOpponentAndMoveDoesNotCauseCheck(int rank, int file) {
-        Position move = new Position(rank, file);
-        Color opponentColor = getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
-        return getBoard().getSquarePieceColor(move).equals(opponentColor) && !moveCausesCheck(move);
+    /**
+     * Determines if the square in the given position has an opponent's piece.
+     * 
+     * @param rank the square's rank
+     * @param file the square's file
+     * @return <code>true</code> if the square has an opponent's piece
+     */
+    private boolean squareHasOpponent(int rank, int file) {
+        Color opponentColor = getColor() == Color.WHITE ? Color.BLACK : Color.WHITE;
+        return Board.getInstance().getPieceColor(new Position(rank, file)) == opponentColor;
     }
 
 }

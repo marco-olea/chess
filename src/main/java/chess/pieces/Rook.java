@@ -1,7 +1,6 @@
 package chess.pieces;
 
 import java.util.List;
-import chess.Board;
 import chess.Position;
 import chess.Color;
 
@@ -16,11 +15,10 @@ public class Rook extends Piece {
     /**
      * Creates a rook of the specified color to be set on the specified board.
      * 
-     * @param board the board this rook is on
      * @param color the color of this rook
      */
-    public Rook(Board board, Color color, Position position) {
-        super(board, color, position);
+    public Rook(Color color) {
+        super(color);
     }
 
     @Override
