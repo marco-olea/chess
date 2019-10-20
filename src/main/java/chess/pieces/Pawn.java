@@ -99,7 +99,8 @@ public class Pawn extends Piece {
     }
 
     /**
-     * Determines if the square in the given position has an opponent's piece.
+     * Determines if the square in the given position has an opponent's piece or this pawn can
+     * apply the "en passant" rule.
      * 
      * @param rank the square's rank
      * @param file the square's file

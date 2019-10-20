@@ -157,9 +157,19 @@ public class Board {
             return false;
         }
         Piece capturedPiece = getPiece(move);
-        if (piece.getClass() == Pawn.class && capturedPiece == null) { // En passant
+        // En passant
+        if (piece.getClass() == Pawn.class && capturedPiece == null) { 
             capturedPiece = getPiece(new Position(piece.getPosition().getRank(), move.getFile()));
             setPiece(null, capturedPiece.getPosition());
+        }
+        // Castle
+        int dir = piece.getPosition().getFile() - move.getFile();
+        if (piece.getClass() == King.class && (int) Math.abs(dir) == 2) {
+            Piece rook = getPiece(new Position(piece.getPosition().getRank(), dir > 0 ? 0 : 7));
+            Position newPos = new Position(piece.getPosition().getRank(), dir > 0 ? 3 : 5);
+            setPiece(null, rook.getPosition());
+            setPiece(rook, newPos);
+            History.getInstance().submitMove(rook, newPos);
         }
         setPiece(null, piece.getPosition());
         setPiece(piece, move);
@@ -178,14 +188,12 @@ public class Board {
     public boolean isInCheck() {
         List<Piece> opponentsPieces = turn == Color.WHITE ? liveBlackPieces : liveWhitePieces;
         King king = turn == Color.WHITE ? whiteKing : blackKing;
-        boolean check = false;
         for (Piece piece: opponentsPieces) {
-            if (piece.getClass() == Pawn.class) {
-                check |= ((Pawn) piece).getAttackingMoves().contains(king.getPosition());
-            } else {
-                check |= piece.getLegalMoves().contains(king.getPosition());
-            }
-            if (check) {
+            if (piece.getClass() == Pawn.class
+                    && ((Pawn) piece).getAttackingMoves().contains(king.getPosition())) {
+                return true;
+            } else if (piece.getClass() != Pawn.class 
+                    && piece.getLegalMoves().contains(king.getPosition())) {
                 return true;
             }
         }
