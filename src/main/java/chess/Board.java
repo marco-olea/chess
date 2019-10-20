@@ -156,21 +156,26 @@ public class Board {
                 || !piece.isLegalMove(move)) {
             return false;
         }
+
         Piece capturedPiece = getPiece(move);
+
         // En passant
-        if (piece.getClass() == Pawn.class && capturedPiece == null) { 
-            capturedPiece = getPiece(new Position(piece.getPosition().getRank(), move.getFile()));
-            setPiece(null, capturedPiece.getPosition());
+        if (piece.getClass() == Pawn.class && capturedPiece == null) {
+            Position pos = new Position(piece.getPosition().getRank(), move.getFile());
+            capturedPiece = getPiece(pos);
+            setPiece(null, pos);
         }
+
         // Castle
-        int dir = piece.getPosition().getFile() - move.getFile();
-        if (piece.getClass() == King.class && (int) Math.abs(dir) == 2) {
-            Piece rook = getPiece(new Position(piece.getPosition().getRank(), dir > 0 ? 0 : 7));
-            Position newPos = new Position(piece.getPosition().getRank(), dir > 0 ? 3 : 5);
+        int side = piece.getPosition().getFile() - move.getFile();
+        if (piece.getClass() == King.class && (int) Math.abs(side) == 2) {
+            Piece rook = getPiece(new Position(piece.getPosition().getRank(), side > 0 ? 0 : 7));
+            Position newPos = new Position(piece.getPosition().getRank(), side > 0 ? 3 : 5);
             setPiece(null, rook.getPosition());
             setPiece(rook, newPos);
             History.getInstance().submitMove(rook, newPos);
         }
+
         setPiece(null, piece.getPosition());
         setPiece(piece, move);
         (turn == Color.WHITE ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);

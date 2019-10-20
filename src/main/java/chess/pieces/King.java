@@ -61,33 +61,45 @@ public class King extends Piece {
         return moves;
     }
 
-    private boolean canCastleKingside() {
-        var board = chess.Board.getInstance();
-        var history = chess.History.getInstance();
+    /**
+     * 
+     * 
+     * @return
+     */
+    public boolean canCastleKingside() {
         int rank = getPosition().getRank();
         Position move = new Position(rank, 6);
+        Position rookPosition = new Position(rank, 7);
         Position sq1 = new Position(rank, 5);
-        Piece rook = board.getPiece(new Position(rank, 7));
-        return history.getMoveCount(this) == 0
-            && rook != null 
-            && rook.getClass() == Rook.class
-            && rook.getColor() == getColor()
-            && history.getMoveCount(rook) == 0
-            && board.isSquareEmpty(sq1)
-            && board.isSquareEmpty(move)
-            && board.getTurn() == getColor() 
-            && !board.isInCheck()
-            && !board.moveCausesCheck(this, sq1)
-            && !board.moveCausesCheck(this, move);
+        return canCastle(move, rookPosition, sq1, sq1);
     }
 
-    private boolean canCastleQueenside() {
-        var board = chess.Board.getInstance();
-        var history = chess.History.getInstance();
+    /**
+     * 
+     * 
+     * @return
+     */
+    public boolean canCastleQueenside() {
         int rank = getPosition().getRank();
         Position move = new Position(rank, 2);
+        Position rookPosition = new Position(rank, 0);
         Position sq1 = new Position(rank, 3), sq2 = new Position(rank, 1);
-        Piece rook = board.getPiece(new Position(rank, 0));
+        return canCastle(move, rookPosition, sq1, sq2);
+    }
+
+    /**
+     * 
+     * 
+     * @param move
+     * @param sq1
+     * @param sq2
+     * @param rookPosition
+     * @return
+     */
+    private boolean canCastle(Position move, Position rookPosition, Position sq1, Position sq2) {
+        var board = chess.Board.getInstance();
+        var history = chess.History.getInstance();
+        Piece rook = board.getPiece(rookPosition);
         return history.getMoveCount(this) == 0
             && rook != null 
             && rook.getClass() == Rook.class

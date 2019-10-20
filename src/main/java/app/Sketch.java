@@ -42,7 +42,7 @@ public class Sketch extends PApplet {
 
     /**
      * Sets up the window, turns off looping, loads piece image files, creates board, and assigns
-     * pieces to their initial positions.
+     * images to pieces.
      */
     @Override
     public void setup() {
@@ -54,6 +54,7 @@ public class Sketch extends PApplet {
         surface.setLocation((displayWidth - BOARD_SIZE) / 2, (displayHeight - BOARD_SIZE) / 2);
         surface.setSize(BOARD_SIZE, BOARD_SIZE);
         surface.setTitle(WINDOW_TITLE);
+        surface.setResizable(true);
         noLoop();
 
         images = new HashMap<>(12);
