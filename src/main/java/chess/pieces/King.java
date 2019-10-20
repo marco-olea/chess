@@ -2,7 +2,7 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Position;
-import chess.Color;
+import chess.pieces.Color;
 
 /**
  * Represents a king in chess.

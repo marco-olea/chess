@@ -3,7 +3,7 @@ package chess.pieces;
 import java.util.List;
 import chess.Board;
 import chess.Position;
-import chess.Color;
+import chess.pieces.Color;
 
 /**
  * Represents a pawn in chess.
@@ -63,10 +63,10 @@ public class Pawn extends Piece {
             if (rank == 6 && squareIsEmpty(rank - 1, file) && squareIsEmpty(rank - 2, file)) {
                 addMoveIfLegal(rank - 2, file, moves);
             }
-            if (file > 0 && squareHasOpponent(rank - 1, file - 1)) {
+            if (file > 0 && enPassantOrSquareHasOpponent(rank - 1, file - 1)) {
                 addMoveIfLegal(rank - 1, file - 1, moves);
             }
-            if (file < 7 && squareHasOpponent(rank - 1, file + 1)) {
+            if (file < 7 && enPassantOrSquareHasOpponent(rank - 1, file + 1)) {
                 addMoveIfLegal(rank - 1, file + 1, moves);
             }
         } else {
@@ -76,10 +76,10 @@ public class Pawn extends Piece {
             if (rank == 1 && squareIsEmpty(rank + 1, file) && squareIsEmpty(rank + 2, file)) {
                 addMoveIfLegal(rank + 2, file, moves);
             }
-            if (file > 0 && squareHasOpponent(rank + 1, file - 1)) {
+            if (file > 0 && enPassantOrSquareHasOpponent(rank + 1, file - 1)) {
                 addMoveIfLegal(rank + 1, file - 1, moves);
             }
-            if (file < 7 && squareHasOpponent(rank + 1, file + 1)) {
+            if (file < 7 && enPassantOrSquareHasOpponent(rank + 1, file + 1)) {
                 addMoveIfLegal(rank + 1, file + 1, moves);
             }
         }
@@ -105,9 +105,18 @@ public class Pawn extends Piece {
      * @param file the square's file
      * @return <code>true</code> if the square has an opponent's piece
      */
-    private boolean squareHasOpponent(int rank, int file) {
+    private boolean enPassantOrSquareHasOpponent(int rank, int file) {
+        Board board = Board.getInstance();
         Color opponentColor = getColor() == Color.WHITE ? Color.BLACK : Color.WHITE;
-        return Board.getInstance().getPieceColor(new Position(rank, file)) == opponentColor;
+        if (board.getPieceColor(new Position(rank, file)) == opponentColor) {
+            return true;
+        }
+        var history = chess.History.getInstance();
+        Piece possiblePawn = board.getPiece(new Position(getPosition().getRank(), file));
+        return possiblePawn != null && possiblePawn.getClass() == getClass()
+            && possiblePawn.getColor() == opponentColor 
+            && history.getLastMovedPiece() == possiblePawn
+            && history.getMoveCount(possiblePawn) == 1;
     }
 
 }

@@ -1,4 +1,4 @@
-package chess;
+package chess.pieces;
 
 /**
  * Piece colors in the game of chess.

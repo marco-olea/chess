@@ -5,7 +5,7 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
 import chess.Board;
-import chess.Color;
+import chess.pieces.Color;
 import chess.Position;
 import chess.pieces.Piece;
 
@@ -83,8 +83,8 @@ public class Sketch extends PApplet {
                     case 0, 7 -> color == Color.WHITE ? wRookImg : bRookImg;
                     case 1, 6 -> color == Color.WHITE ? wKnightImg : bKnightImg;
                     case 2, 5 -> color == Color.WHITE ? wBishopImg : bBishopImg;
-                    case 3 -> color == Color.WHITE ? wQueenImg : bQueenImg;
-                    default -> color == Color.WHITE ? wKingImg : bKingImg;
+                    case 3    -> color == Color.WHITE ? wQueenImg : bQueenImg;
+                    default   -> color == Color.WHITE ? wKingImg : bKingImg;
                 };
                 if (i == 1 || i == 6) {
                     image = color == Color.WHITE ? wPawnImg : bPawnImg;

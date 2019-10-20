@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.List;
+import chess.pieces.Color;
 import chess.pieces.Piece;
 import chess.pieces.Bishop;
 import chess.pieces.Knight;
@@ -57,11 +58,12 @@ public class Board {
 
     }
 
-    private static Board instance;
+    private static final Board INSTANCE = new Board();
+
     private Square[][] squares;
     private List<Piece> liveWhitePieces;
     private List<Piece> liveBlackPieces;
-    private List<Position> currentPlayerPossibleMoves;
+    private boolean currentPlayerHasLegalMoves;
     private Color turn;
     private King whiteKing;
     private King blackKing;
@@ -73,8 +75,8 @@ public class Board {
         squares = new Square[8][8];
         liveWhitePieces = new java.util.LinkedList<>();
         liveBlackPieces = new java.util.LinkedList<>();
-        currentPlayerPossibleMoves = new java.util.LinkedList<>();
-        turn = Color.WHITE;
+        currentPlayerHasLegalMoves = true;
+        turn = Color.WHITE;                                 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 squares[i][j] = new Square();
@@ -109,11 +111,7 @@ public class Board {
      * @return a unique <code>Board</code>
      */
     public static Board getInstance() {
-        if (instance == null) {
-            instance = new Board();
-            instance.computeCurrentPlayersLegalMoves();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -159,11 +157,16 @@ public class Board {
             return false;
         }
         Piece capturedPiece = getPiece(move);
+        if (piece.getClass() == Pawn.class && capturedPiece == null) { // En passant
+            capturedPiece = getPiece(new Position(piece.getPosition().getRank(), move.getFile()));
+            setPiece(null, capturedPiece.getPosition());
+        }
         setPiece(null, piece.getPosition());
         setPiece(piece, move);
         (turn == Color.WHITE ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);
         turn = turn == Color.WHITE ? Color.BLACK : Color.WHITE;
-        computeCurrentPlayersLegalMoves();
+        determineIfCurrentPlayerHasLegalMoves();
+        History.getInstance().submitMove(piece, move);
         return true;
     }
 
@@ -223,7 +226,7 @@ public class Board {
      * @return <code>true</code> if the current player's king has been checkmated
      */
     public boolean isCheckmate() {
-        return currentPlayerPossibleMoves.isEmpty() && isInCheck();
+        return !currentPlayerHasLegalMoves && isInCheck();
     }
 
     /**
@@ -232,7 +235,7 @@ public class Board {
      * @return <code>true</code> if the current player has been stalemated
      */
     public boolean isStalemate() {
-        return currentPlayerPossibleMoves.isEmpty() && !isInCheck();
+        return !currentPlayerHasLegalMoves && !isInCheck();
     }
 
     /**
@@ -270,14 +273,17 @@ public class Board {
     }
 
     /**
-     * Updates the list of the current player's legal moves. Used for finding checkmate and/or
-     * stalemate.
+     * Determines if the current player has any legal moves left. Used for detecting checkmate
+     * and/or stalemate.
      */
-    private void computeCurrentPlayersLegalMoves() {
-        currentPlayerPossibleMoves.clear();
+    private void determineIfCurrentPlayerHasLegalMoves() {
         for (Piece piece: turn == Color.WHITE ? liveWhitePieces : liveBlackPieces) {
-            currentPlayerPossibleMoves.addAll(piece.getLegalMoves());
+            if (!piece.getLegalMoves().isEmpty()) {
+                currentPlayerHasLegalMoves = true;
+                return;
+            }
         }
+        currentPlayerHasLegalMoves = false;
     }
 
 }
