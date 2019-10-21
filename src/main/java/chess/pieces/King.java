@@ -62,39 +62,41 @@ public class King extends Piece {
     }
 
     /**
+     * Determines if this king can castle kingside.
      * 
-     * 
-     * @return
+     * @return <code>true</code> if this king can castle kingside
      */
     public boolean canCastleKingside() {
         int rank = getPosition().getRank();
-        Position move = new Position(rank, 6);
-        Position rookPosition = new Position(rank, 7);
         Position sq1 = new Position(rank, 5);
-        return canCastle(move, rookPosition, sq1, sq1);
+        return canCastle(new Position(rank, 6), new Position(rank, 7), sq1, sq1);
     }
 
     /**
+     * Determines if this king can castle queenside.
      * 
-     * 
-     * @return
+     * @return <code>true</code> if this king can castle queenside
      */
     public boolean canCastleQueenside() {
         int rank = getPosition().getRank();
-        Position move = new Position(rank, 2);
-        Position rookPosition = new Position(rank, 0);
         Position sq1 = new Position(rank, 3), sq2 = new Position(rank, 1);
-        return canCastle(move, rookPosition, sq1, sq2);
+        return canCastle(new Position(rank, 2), new Position(rank, 0), sq1, sq2);
     }
 
     /**
+     * Determines if the king can castle. Returns <code>true</code> if all of the following 
+     * statements are true: this king belongs to the current player, this king has never moved,
+     * <code>rookPosition</code> contains a friendly rook which has never moved, the squares
+     * between this king and the rook are empty, and moving this king to <code>sq1</code> or
+     * <code>move</code> would not put the current player in check.
+     * This is an auxiliary method for removing duplicate code for canCastleKingside() and
+     * canCastleQueenside().
      * 
-     * 
-     * @param move
-     * @param sq1
-     * @param sq2
-     * @param rookPosition
-     * @return
+     * @param move         the position the king will move to
+     * @param rookPosition the position of the rook that the king will castle with
+     * @param sq1          the first square in between the king and the rook
+     * @param sq2          the second square in between the king and the rook (for a queenside castle)
+     * @return <code>true</code> if this king can legally move to <code>move</code>
      */
     private boolean canCastle(Position move, Position rookPosition, Position sq1, Position sq2) {
         var board = chess.Board.getInstance();

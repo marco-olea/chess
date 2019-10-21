@@ -13,7 +13,7 @@ import chess.pieces.Color;
 public class Rook extends Piece {
 
     /**
-     * Creates a rook of the specified color to be set on the specified board.
+     * Creates a rook of the specified color.
      * 
      * @param color the color of this rook
      */

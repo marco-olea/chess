@@ -261,8 +261,8 @@ public class Board {
      * Gets the color of the piece on the specified square.
      * 
      * @param position the position of the square
-     * @return the piece's color or {@link chess.Color#NONE} if the square in the specified position
-     *         is empty
+     * @return the piece's color or {@link chess.pieces.Color#NONE} if the square in the specified
+     *         position is empty
      */
     public Color getPieceColor(Position position) {
         return isSquareEmpty(position) ? Color.NONE : getPiece(position).getColor();
