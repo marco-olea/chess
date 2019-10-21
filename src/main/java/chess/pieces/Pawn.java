@@ -22,35 +22,6 @@ public class Pawn extends Piece {
         super(color);
     }
 
-    /**
-     * Returns a list of the positions on the board that this pawn can move to to capture an 
-     * opponent's piece.
-     * 
-     * @return a list of this pawn's offensive moves
-     */
-    public List<Position> getAttackingMoves() {
-        var moves = new java.util.LinkedList<Position>();
-        int rank = getPosition().getRank(), file = getPosition().getFile();
-
-        if (getColor() == Color.WHITE) {
-            if (file > 0 && squareIsEmpty(rank - 1, file - 1)) {
-                addMoveIfLegal(rank - 1, file - 1, moves);
-            }
-            if (file < 7 && squareIsEmpty(rank - 1, file + 1)) {
-                addMoveIfLegal(rank - 1, file + 1, moves);
-            }
-        } else {
-            if (file > 0 && squareIsEmpty(rank + 1, file - 1)) {
-                addMoveIfLegal(rank + 1, file - 1, moves);
-            }
-            if (file < 7 && squareIsEmpty(rank + 1, file + 1)) {
-                addMoveIfLegal(rank + 1, file + 1, moves);
-            }
-        }
-
-        return moves;
-    }
-
     @Override
     public List<Position> getLegalMoves() {
         var moves = new java.util.LinkedList<Position>();
@@ -113,11 +84,11 @@ public class Pawn extends Piece {
             return true;
         }
         var history = chess.History.getInstance();
-        Piece possiblePawn = board.getPiece(new Position(getPosition().getRank(), file));
-        return possiblePawn != null && possiblePawn.getClass() == getClass()
-            && possiblePawn.getColor() == opponentColor 
-            && history.getLastMovedPiece() == possiblePawn
-            && history.getMoveCount(possiblePawn) == 1;
+        Piece pawn = board.getPiece(new Position(getPosition().getRank(), file));
+        return pawn != null && pawn.getClass() == Pawn.class
+            && pawn.getColor() == opponentColor 
+            && history.getLastMovedPiece() == pawn
+            && history.getMoveCount(pawn) == 1;
     }
 
 }

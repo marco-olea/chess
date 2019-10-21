@@ -194,11 +194,7 @@ public class Board {
         List<Piece> opponentsPieces = turn == Color.WHITE ? liveBlackPieces : liveWhitePieces;
         King king = turn == Color.WHITE ? whiteKing : blackKing;
         for (Piece piece: opponentsPieces) {
-            if (piece.getClass() == Pawn.class
-                    && ((Pawn) piece).getAttackingMoves().contains(king.getPosition())) {
-                return true;
-            } else if (piece.getClass() != Pawn.class 
-                    && piece.getLegalMoves().contains(king.getPosition())) {
+            if (piece.getLegalMoves().contains(king.getPosition())) {
                 return true;
             }
         }
