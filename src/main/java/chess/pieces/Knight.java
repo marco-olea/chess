@@ -2,7 +2,6 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Position;
-import chess.pieces.Color;
 
 /**
  * Represents a knight in chess.

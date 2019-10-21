@@ -3,7 +3,6 @@ package chess.pieces;
 import java.util.List;
 import chess.Board;
 import chess.Position;
-import chess.pieces.Color;
 
 /**
  * Represents a piece in chess.
