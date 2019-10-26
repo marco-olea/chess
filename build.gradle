@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+dependencies {
+    implementation fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+application {
+    mainClassName = 'app.Main'
+}
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
+}
+
+tasks.withType(Javadoc) {
+    options.setSource('13')
+    options.addBooleanOption('-enable-preview', true)
+    options.setLinks([
+        'https://docs.oracle.com/en/java/javase/13/docs/api/',
+        'http://processing.github.io/processing-javadocs/core/'])
+    options.setEncoding('UTF-8')
+    options.setAuthor(true)
+    options.setVersion(false)
+    options.setUse(true)
+    options.setMemberLevel(JavadocMemberLevel.PUBLIC)
+    options.setWindowTitle('Chess')
+    options.setDocTitle('Chess Application')
+    options.setBottom('<i>Copyright &#169; 2019. All rights reserved.</i>')
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs(['--enable-preview'])
+}
