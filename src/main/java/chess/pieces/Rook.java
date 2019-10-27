@@ -1,7 +1,6 @@
 package chess.pieces;
 
 import java.util.List;
-import chess.Position;
 
 /**
  * Represents a rook in chess.

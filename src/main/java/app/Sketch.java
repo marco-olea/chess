@@ -5,9 +5,15 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
 import chess.Board;
+import chess.pieces.Position;
 import chess.pieces.Color;
-import chess.Position;
 import chess.pieces.Piece;
+import chess.pieces.Pawn;
+import chess.pieces.Bishop;
+import chess.pieces.Knight;
+import chess.pieces.Rook;
+import chess.pieces.King;
+import chess.pieces.Queen;
 
 /**
  * Processing sketch used for playing chess.
@@ -17,7 +23,67 @@ import chess.pieces.Piece;
  */
 public class Sketch extends PApplet {
 
-    private static final String WINDOW_TITLE                  = "Chess";
+    /**
+     * Pop-up dialog used for announcing when the game is over.
+     * 
+     * @author Marco Olea
+     * @version 1.0
+     */
+    private class Dialog extends PApplet {
+
+        private static final String WINDOW_TITLE = "Game Over";
+        private String message;
+
+        /**
+         * Creates a dialog that will display the specified message.
+         *
+         * @param message message to display in the pop-up window
+         */
+        public Dialog(String message) {
+            this.message = message;
+        }
+
+        /**
+         * Sets the width equal to the board size and height equal to one sixth of the board size.
+         */
+        @Override
+        public void settings() {
+            size(Sketch.this.width, Sketch.this.width / 6);
+        }
+
+        /**
+         * Sets the title and turns off looping.
+         */
+        @Override
+        public void setup() {
+            surface.setTitle(Dialog.WINDOW_TITLE);
+            noLoop();
+        }
+
+        /**
+         * Draws the text announcing the game end.
+         */
+        @Override
+        public void draw() {
+            textAlign(CENTER, CENTER);
+            textSize(height / 2);
+            fill(0xFF000000);
+            text(message, 0, 0, width, height);
+        }
+
+        /**
+         * Prevents closing the primary window when this window is closed.
+         */
+        @Override
+        public void exit() {
+            dispose();
+        }
+
+    }
+
+    private static final String WINDOW_TITLE                  = "Processing 3 Chess";
+    private static final String CHECKMATE_MESSAGE             = "Checkmate! %s wins!";
+    private static final String STALEMATE_MESSAGE             = "Stalemate! It's a draw!";
     private static final int    SQUARE_BORDER_COLOR           = 0xff000000; // ARGB
     private static final int    SQUARE_BORDER_WIDTH           = 1;
     private static final int    SELECTED_SQUARE_BORDER_COLOR  = 0xff0000ff;
@@ -34,7 +100,7 @@ public class Sketch extends PApplet {
     private static int SQUARE_MARGIN;
 
     private Board board;
-    private HashMap<Piece, PImage> images;
+    private HashMap<String, PImage> images;
     private Piece selectedPiece;
     private Position selectedPosition;
     private boolean choosingNextMove;
@@ -57,42 +123,20 @@ public class Sketch extends PApplet {
         surface.setResizable(true);
         noLoop();
 
-        images = new HashMap<>(12);
         board = Board.getInstance();
-
-        PImage wPawnImg = loadImage(getClass().getResource("/white-pawn-50.png").getPath());
-        PImage wBishopImg = loadImage(getClass().getResource("/white-bishop-50.png").getPath());
-        PImage wKnightImg = loadImage(getClass().getResource("/white-knight-50.png").getPath());
-        PImage wRookImg = loadImage(getClass().getResource("/white-rook-50.png").getPath());
-        PImage wKingImg = loadImage(getClass().getResource("/white-king-50.png").getPath());
-        PImage wQueenImg = loadImage(getClass().getResource("/white-queen-50.png").getPath());
-        PImage bPawnImg = loadImage(getClass().getResource("/black-pawn-50.png").getPath());
-        PImage bBishopImg = loadImage(getClass().getResource("/black-bishop-50.png").getPath());
-        PImage bKnightImg = loadImage(getClass().getResource("/black-knight-50.png").getPath());
-        PImage bRookImg = loadImage(getClass().getResource("/black-rook-50.png").getPath());
-        PImage bKingImg = loadImage(getClass().getResource("/black-king-50.png").getPath());
-        PImage bQueenImg = loadImage(getClass().getResource("/black-queen-50.png").getPath());
-
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (i >= 2 && i <= 5) {
-                    continue;
-                }
-                Piece piece = board.getPiece(new Position(i, j));
-                Color color = piece.getColor();
-                PImage image = switch (j) {
-                    case 0, 7 -> color == Color.WHITE ? wRookImg : bRookImg;
-                    case 1, 6 -> color == Color.WHITE ? wKnightImg : bKnightImg;
-                    case 2, 5 -> color == Color.WHITE ? wBishopImg : bBishopImg;
-                    case 3    -> color == Color.WHITE ? wQueenImg : bQueenImg;
-                    default   -> color == Color.WHITE ? wKingImg : bKingImg;
-                };
-                if (i == 1 || i == 6) {
-                    image = color == Color.WHITE ? wPawnImg : bPawnImg;
-                }
-                images.put(piece, image);
-            }
-        }
+        images = new HashMap<>(12);
+        put(new Pawn(Color.WHITE), "/white-pawn-50.png");
+        put(new Bishop(Color.WHITE), "/white-bishop-50.png");
+        put(new Knight(Color.WHITE), "/white-knight-50.png");
+        put(new Rook(Color.WHITE), "/white-rook-50.png");
+        put(new King(Color.WHITE), "/white-king-50.png");
+        put(new Queen(Color.WHITE), "/white-queen-50.png");
+        put(new Pawn(Color.BLACK), "/black-pawn-50.png");
+        put(new Bishop(Color.BLACK), "/black-bishop-50.png");
+        put(new Knight(Color.BLACK), "/black-knight-50.png");
+        put(new Rook(Color.BLACK), "/black-rook-50.png");
+        put(new King(Color.BLACK), "/black-king-50.png");
+        put(new Queen(Color.BLACK), "/black-queen-50.png");
     }
 
     /**
@@ -130,7 +174,7 @@ public class Sketch extends PApplet {
             for (int j = 0; j < 8; j++) {
                 Position position = new Position(i, j);
                 if (!board.isSquareEmpty(position)) {
-                    image(images.get(board.getPiece(position)), 
+                    image(images.get(board.getPiece(position).toString()), 
                           j * SQUARE_SIZE + SQUARE_MARGIN, i * SQUARE_SIZE + SQUARE_MARGIN,
                           IMAGE_SIZE, IMAGE_SIZE);
                 }
@@ -139,11 +183,11 @@ public class Sketch extends PApplet {
 
         // Checkmate or stalemate
         if (!gameIsOver && board.isCheckmate()) {
-            String winner = board.getTurn() == Color.WHITE ? " Black " : " White ";
-            main(Dialog.class, new String[]{width + "", "Checkmate!" + winner + "wins!"});
+            String winner = board.getTurn() == Color.WHITE ? "Black" : "White";
+            runSketch(platformNames, new Dialog(String.format(CHECKMATE_MESSAGE, winner)));
             gameIsOver = true;
         } else if (!gameIsOver && board.isStalemate()) {
-            main(Dialog.class, new String[]{width + "", "Stalemate! It's a draw!"});
+            runSketch(platformNames, new Dialog(STALEMATE_MESSAGE));
             gameIsOver = true;
         }
     }
@@ -201,6 +245,17 @@ public class Sketch extends PApplet {
         rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
         fill((i + j) % 2 == 0 ? WHITE_SQUARE_FILL : BLACK_SQUARE_FILL);
         rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+    }
+
+    /**
+     * Puts the entry <code>piece.toString()=loadImage(path)</code> into the <code>images</code>
+     * HashMap.
+     *
+     * @param piece the piece to put
+     * @param path  the path for the image to load
+     */
+    private void put(Piece piece, String path) {
+        images.put(piece.toString(), loadImage(getClass().getResource(path).getPath()));
     }
 
 }

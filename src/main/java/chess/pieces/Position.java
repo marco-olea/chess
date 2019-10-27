@@ -1,7 +1,7 @@
-package chess;
+package chess.pieces;
 
 /**
- * A position (rank, file) on a chess board.
+ * A position (rank, file) of a piece on a chess board.
  * 
  * @author Marco Olea
  * @version 1.0
@@ -63,22 +63,13 @@ public class Position {
     }
 
     /**
-     * Returns the hash code value for this position. The value is calculated as follows:
-     * <p>
-     * &nbsp;&nbsp;&nbsp;&nbsp;<code>java.util.Objects.hash(rank, file)</code>
-     * </p>
-     * This ensures that <code>pos1.equals(pos2)</code> implies that
-     * <code>pos1.hashCode()==pos2.hashCode()</code> for any two positions,
-     * <code>pos1</code> and <code>pos2</code>, as required by the general contract
-     * of <code>Object.hashCode()</code>.
-     * 
-     * @return the hash code value for this position
-     * @see Object#equals(Object)
-     * @see #equals(Object)
+     * Returns "(&lt;r&gt;, &lt;f&gt;)", where &lt;r&gt; is the rank and &lt;f&gt; is the file.
+     *
+     * @return a string representation of this position
      */
     @Override
-    public int hashCode() {
-        return java.util.Objects.hash(rank, file);
+    public String toString() {
+        return "(" + rank + ", " + file + ")";
     }
 
 }

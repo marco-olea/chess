@@ -2,7 +2,6 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
-import chess.Position;
 
 /**
  * Represents a pawn in chess.

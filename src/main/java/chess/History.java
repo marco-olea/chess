@@ -1,7 +1,7 @@
 package chess;
 
-import java.util.IdentityHashMap;
-import java.util.LinkedList;
+import java.util.Map;
+import java.util.List;
 import chess.pieces.Piece;
 
 /**
@@ -15,16 +15,16 @@ public class History {
 
     private static final History INSTANCE = new History();
 
-    private LinkedList<String> moveHistory;
-    private IdentityHashMap<Piece, Integer> moveCounts;
+    private List<String> moveHistory;
+    private Map<Piece, Integer> moveCounts;
     private Piece lastMoved;
 
     /**
      * Creates an empty record set.
      */
     private History() {
-        moveHistory = new LinkedList<>();
-        moveCounts = new IdentityHashMap<>();
+        moveHistory = new java.util.LinkedList<>();
+        moveCounts = new java.util.IdentityHashMap<>();
     }
 
     /**
@@ -42,8 +42,8 @@ public class History {
      * @param piece the piece that was moved
      * @param move  the position on the board that <code>piece</code> was moved to
      */
-    public void submitMove(Piece piece, Position move) {
-        if (piece != null && move != null) {
+    public void submitMove(Piece piece, int toRank, int toFile) {
+        if (piece != null) {
             moveCounts.put(piece, moveCounts.getOrDefault(piece, 0) + 1);
             lastMoved = piece;
         }

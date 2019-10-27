@@ -27,7 +27,7 @@ tasks.withType(Javadoc) {
     options.setUse(true)
     options.setMemberLevel(JavadocMemberLevel.PUBLIC)
     options.setWindowTitle('Chess')
-    options.setDocTitle('Chess Application')
+    options.setDocTitle('Processing 3 Chess Application')
     options.setBottom('<i>Copyright &#169; 2019. All rights reserved.</i>')
 }
 

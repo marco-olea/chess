@@ -2,7 +2,6 @@ package chess.pieces;
 
 import java.util.List;
 import chess.Board;
-import chess.Position;
 
 /**
  * Represents a piece in chess.
@@ -93,25 +92,14 @@ public abstract class Piece {
     }
 
     /**
-     * Returns the hash code value for this piece. The value is calculated as follows:
-     * <p>
-     * &nbsp;&nbsp;&nbsp;&nbsp;
-     * <code>java.util.Objects.hash(getClass().getSimpleName(), color)</code>
-     * </p>
-     * This ensures that <code>piece1.equals(piece2)</code> implies that
-     * <code>piece1.hashCode()==piece2.hashCode()</code> for any two pieces,
-     * <code>piece1</code> and <code>piece2</code>, as required by the general
-     * contract of <code>Object.hashCode()</code>.
-     * Note that this calculation also ensures that unequal concrete implementations of this class
-     * (i.e. two pawns in different positions) will return the same hash code.
-     * 
-     * @return the hash code value for this piece
-     * @see Object#equals(Object)
-     * @see #equals(Object)
+     * Returns "&lt;c&lgt; &lt;p&gt;", where &lt;c&gt; is the color of this piece and &lt;p&gt;
+     * is its simple name. For example, "BLACK Rook" or "WHITE Pawn".
+     *
+     * @return a string representation of this piece
      */
     @Override
-    public int hashCode() {
-        return java.util.Objects.hash(getClass().getSimpleName(), color);
+    public String toString() {
+        return color.name() + " " + getClass().getSimpleName();
     }
 
     /**
