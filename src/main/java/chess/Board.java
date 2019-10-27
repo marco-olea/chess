@@ -2,6 +2,7 @@ package chess;
 
 import java.util.List;
 import chess.pieces.Color;
+import chess.pieces.Position;
 import chess.pieces.Piece;
 import chess.pieces.Bishop;
 import chess.pieces.Knight;
@@ -173,7 +174,7 @@ public class Board {
             Position newPos = new Position(piece.getPosition().getRank(), side > 0 ? 3 : 5);
             setPiece(null, rook.getPosition());
             setPiece(rook, newPos);
-            History.getInstance().submitMove(rook, newPos);
+            History.getInstance().submitMove(rook, newPos.getRank(), newPos.getFile());
         }
 
         setPiece(null, piece.getPosition());
@@ -181,7 +182,7 @@ public class Board {
         (turn == Color.WHITE ? liveBlackPieces : liveWhitePieces).remove(capturedPiece);
         turn = turn == Color.WHITE ? Color.BLACK : Color.WHITE;
         determineIfCurrentPlayerHasLegalMoves();
-        History.getInstance().submitMove(piece, move);
+        History.getInstance().submitMove(piece, move.getRank(), move.getFile());
         return true;
     }
 
