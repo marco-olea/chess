@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.List;
+import java.util.Iterator;
 import chess.pieces.Color;
 import chess.pieces.Position;
 import chess.pieces.Piece;
@@ -18,7 +19,7 @@ import chess.pieces.Rook;
  * @version 1.0
  * @see chess.pieces.Piece
  */
-public class Board {
+public class Board implements Iterable<Piece> {
 
     /**
      * A square on a chess board.
@@ -267,6 +268,13 @@ public class Board {
      */
     public Color getPieceColor(Position position) {
         return isSquareEmpty(position) ? Color.NONE : getPiece(position).getColor();
+    }
+
+    @Override
+    public Iterator<Piece> iterator() {
+        var list = new java.util.LinkedList<Piece>(liveWhitePieces);
+        list.addAll(liveBlackPieces);
+        return list.iterator();
     }
 
     /**

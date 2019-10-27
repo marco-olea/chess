@@ -170,15 +170,11 @@ public class Sketch extends PApplet {
         }
 
         // Pieces
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                Position position = new Position(i, j);
-                if (!board.isSquareEmpty(position)) {
-                    image(images.get(board.getPiece(position).toString()), 
-                          j * SQUARE_SIZE + SQUARE_MARGIN, i * SQUARE_SIZE + SQUARE_MARGIN,
-                          IMAGE_SIZE, IMAGE_SIZE);
-                }
-            }
+        for (Piece piece: board) {
+            image(images.get(piece.toString()), 
+                  piece.getPosition().getFile() * SQUARE_SIZE + SQUARE_MARGIN,
+                  piece.getPosition().getRank() * SQUARE_SIZE + SQUARE_MARGIN,
+                  IMAGE_SIZE, IMAGE_SIZE);
         }
 
         // Checkmate or stalemate
