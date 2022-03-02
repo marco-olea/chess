@@ -40,7 +40,8 @@ public class History {
      * Records the specified move for the specified piece. Does nothing if either parameter is null.
      *
      * @param piece the piece that was moved
-     * @param move  the position on the board that <code>piece</code> was moved to
+     * @param toRank 
+     * @param toFile 
      */
     public void submitMove(Piece piece, int toRank, int toFile) {
         if (piece != null) {
@@ -61,7 +62,7 @@ public class History {
 
     /**
      * Returns the last non-null piece with which a move was submitted via 
-     * {@link History#submitMove(Piece, Position)}.
+     * {@link History#submitMove(Piece, int, int)}.
      *
      * @return the last moved piece; <code>null</code> if no pieces have been moved
      */

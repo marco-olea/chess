@@ -32,7 +32,7 @@ public class Sketch extends PApplet {
     private class Dialog extends PApplet {
 
         private static final String WINDOW_TITLE = "Game Over";
-        private String message;
+        private final String message;
 
         /**
          * Creates a dialog that will display the specified message.
@@ -112,7 +112,7 @@ public class Sketch extends PApplet {
      */
     @Override
     public void setup() {
-        BOARD_SIZE = displayHeight * 4 / 5;
+        BOARD_SIZE = displayHeight * 4 / 5;System.out.println(BOARD_SIZE);
         SQUARE_SIZE = BOARD_SIZE / 8;
         IMAGE_SIZE = BOARD_SIZE / 10;
         SQUARE_MARGIN = SQUARE_SIZE / 10;
@@ -230,7 +230,7 @@ public class Sketch extends PApplet {
     }
 
     /**
-     * Draws an appropiately-colored square on the board, of width and height equal to 
+     * Draws an appropriately-colored square on the board, of width and height equal to
      * <code>SQUARE_SIZE</code>.
      * 
      * @param i the x-coordinate

@@ -92,7 +92,7 @@ public abstract class Piece {
     }
 
     /**
-     * Returns "&lt;c&lgt; &lt;p&gt;", where &lt;c&gt; is the color of this piece and &lt;p&gt;
+     * Returns "{@literal <c> <p>}", where {@literal <c>} is the color of this piece and {@literal <p>}
      * is its simple name. For example, "BLACK Rook" or "WHITE Pawn".
      *
      * @return a string representation of this piece
