@@ -3,24 +3,22 @@ plugins {
     id 'application'
 }
 
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
 dependencies {
     implementation fileTree(dir: 'lib', include: ['*.jar'])
 }
 
 application {
-    mainClassName = 'app.Main'
-}
-
-tasks.withType(JavaCompile).each {
-    it.options.compilerArgs.add('--enable-preview')
+    getMainClass().set('app.Main')
 }
 
 tasks.withType(Javadoc) {
-    options.setSource('13')
-    options.addBooleanOption('-enable-preview', true)
+    options.setSource('17')
     options.setLinks([
-        'https://docs.oracle.com/en/java/javase/13/docs/api/',
-        'http://processing.github.io/processing-javadocs/core/'])
+        'https://docs.oracle.com/en/java/javase/17/docs/api/',
+        'https://processing.github.io/processing-javadocs/core/'])
     options.setEncoding('UTF-8')
     options.setAuthor(true)
     options.setVersion(false)
@@ -29,8 +27,4 @@ tasks.withType(Javadoc) {
     options.setWindowTitle('Chess')
     options.setDocTitle('Processing 3 Chess Application')
     options.setBottom('<i>Copyright &#169; 2019. All rights reserved.</i>')
-}
-
-tasks.withType(JavaExec) {
-    jvmArgs(['--enable-preview'])
 }
