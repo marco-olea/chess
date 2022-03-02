@@ -112,7 +112,7 @@ public class Sketch extends PApplet {
      */
     @Override
     public void setup() {
-        BOARD_SIZE = displayHeight * 4 / 5;System.out.println(BOARD_SIZE);
+        BOARD_SIZE = displayHeight * 4 / 5;
         SQUARE_SIZE = BOARD_SIZE / 8;
         IMAGE_SIZE = BOARD_SIZE / 10;
         SQUARE_MARGIN = SQUARE_SIZE / 10;
